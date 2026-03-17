@@ -13,6 +13,8 @@
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#05080f}#root{height:100%}</style>
 </head>
 <body>
@@ -2124,6 +2126,7 @@ function App() {
   const [showAdminRights,setShowAdminRights]=useState(false);
   const [showOptionsMenu,setShowOptionsMenu]=useState(false);
   const [showDataInfo,setShowDataInfo]=useState(false);
+  const [showExportMenu,setShowExportMenu]=useState(false);
   const [adminRightsForm,setAdminRightsForm]=useState({name:"",email:"",password:""});
   const [adminRightsPerms,setAdminRightsPerms]=useState({dashboard:true,campaigns:true,insights:true,certification:false});
   const [editingAdmin,setEditingAdmin]=useState(null);
@@ -2189,6 +2192,8 @@ function App() {
       else{setShowPulse(true);}
     }
   },[]);
+
+  useEffect(()=>{if(!showExportMenu)return;const h=()=>setShowExportMenu(false);document.addEventListener("click",h);return()=>document.removeEventListener("click",h);},[showExportMenu]);
 
   const selSurvey=useMemo(()=>surveys.find(s=>s.id===selId),[surveys,selId]);
   const emailCount=useMemo(()=>camp.emails.split(/[\n,]+/).map(e=>e.trim()).filter(e=>e.includes("@")).length,[camp.emails]);
@@ -2332,6 +2337,100 @@ function App() {
       setAiInsight({summary:raw.executiveSummary||raw.summary||"",themes:[...(raw.strengths||[]),...(raw.concerns||[]),...(raw.themes||[])],recommendations:raw.recommendations||[],overallScore:raw.overallScore,sentiment:raw.sentiment});
     }catch(e){setAiInsight({summary:"Analysis unavailable. Check connection.",themes:[],recommendations:[]});}
     finally{setGenerating(false);}
+  };
+
+  // ── Export Helpers ──
+  const getExportRows=(isPulse)=>{
+    if(isPulse){
+      const qs=PULSE_QUESTIONS;
+      return {headers:["Name","Email","Submitted At",...qs.map(q=>`${q.id.toUpperCase()}: ${q.text}`)],rows:pulseResponses.map(r=>[r.name||"",r.email||"",r.submittedAt?new Date(r.submittedAt).toLocaleString("en-IN"):"", ...qs.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):(a||"")})])};
+    }
+    const sv=surveys.find(s=>s.id===selId);
+    const campR=campaignResponsesMap[selId]||[];
+    const qs=SURVEY_QUESTIONS[sv?.track]||[];
+    return {headers:["Name","Email","Submitted At",...qs.map(q=>`${q.id.toUpperCase()}: ${q.text.replace(/,/g,";")}`), "Overall Score"],rows:campR.map(r=>[r.name||"",r.email||"",r.submittedAt?new Date(r.submittedAt).toLocaleString("en-IN"):"", ...qs.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):(a||"")}),r.score||""])};
+  };
+
+  const exportDataCSV=()=>{
+    const isPulse=selId==="__pulse__";
+    const {headers,rows}=getExportRows(isPulse);
+    const csv=[headers,...rows].map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=`${effectiveSelSurvey?.title||"survey"}-responses.csv`;a.click();URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const exportDataExcel=()=>{
+    const isPulse=selId==="__pulse__";
+    const {headers,rows}=getExportRows(isPulse);
+    const ws=window.XLSX.utils.aoa_to_sheet([headers,...rows]);
+    ws["!cols"]=headers.map((_,i)=>({wch:i<3?25:40}));
+    const wb=window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb,ws,"Responses");
+    // Add summary sheet
+    const metrics=Object.entries(effectiveSelSurvey?.aggregatedMetrics||{});
+    const sumData=[["Campaign",effectiveSelSurvey?.title||""],["Responses",effectiveSelSurvey?.responses||0],["Date",new Date().toLocaleDateString("en-IN")],[""],["Pillar","Score (%)"],...metrics.map(([k,v])=>[k,v])];
+    const ws2=window.XLSX.utils.aoa_to_sheet(sumData);
+    ws2["!cols"]=[{wch:30},{wch:15}];
+    window.XLSX.utils.book_append_sheet(wb,ws2,"Summary");
+    window.XLSX.writeFile(wb,`${effectiveSelSurvey?.title||"survey"}-responses.xlsx`);
+    setShowExportMenu(false);
+  };
+
+  const exportDataJSON=()=>{
+    const isPulse=selId==="__pulse__";
+    const rawResps=isPulse?pulseResponses:(campaignResponsesMap[selId]||[]);
+    const payload={campaign:effectiveSelSurvey?.title||"",exportedAt:new Date().toISOString(),totalResponses:rawResps.length,aggregatedMetrics:effectiveSelSurvey?.aggregatedMetrics||{},responses:rawResps.map(r=>({name:r.name||"",email:r.email||"",submittedAt:r.submittedAt||"",answers:r.answers||{},score:r.score||null}))};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=`${effectiveSelSurvey?.title||"survey"}-responses.json`;a.click();URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const exportInsightPDF=()=>{
+    if(!aiInsight)return;
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+    const W=210,M=20,CW=W-2*M;
+    let y=20;
+    // Header bar
+    doc.setFillColor(15,23,42);doc.rect(0,0,W,38,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(241,245,249);
+    doc.text("HRAI AI Cultural Narrative",M,16);
+    doc.setFontSize(10);doc.setTextColor(148,163,184);
+    doc.text(`${effectiveSelSurvey?.title||"Survey"} · ${effectiveSelSurvey?.responses||0} Responses · ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}`,M,24);
+    if(aiInsight.sentiment){doc.setFontSize(9);doc.text(`Sentiment: ${aiInsight.sentiment}${aiInsight.overallScore!=null?" · Score: "+aiInsight.overallScore+"/100":""}`,M,32);}
+    y=46;
+    // Executive Summary
+    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(30,41,59);
+    doc.text("EXECUTIVE SUMMARY",M,y);y+=7;
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(71,85,105);
+    const sumLines=doc.splitTextToSize(aiInsight.summary||"No summary available.",CW);
+    doc.text(sumLines,M,y);y+=sumLines.length*5+8;
+    // Key Themes
+    if(aiInsight.themes?.length>0){
+      if(y>250){doc.addPage();y=20;}
+      doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(30,41,59);
+      doc.text("KEY THEMES",M,y);y+=7;
+      doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(71,85,105);
+      aiInsight.themes.forEach((t,i)=>{if(y>275){doc.addPage();y=20;}const tl=doc.splitTextToSize(`${i+1}. ${t}`,CW-5);doc.text(tl,M+3,y);y+=tl.length*4.5+3;});
+      y+=5;
+    }
+    // Recommendations
+    if(aiInsight.recommendations?.length>0){
+      if(y>250){doc.addPage();y=20;}
+      doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(30,41,59);
+      doc.text("RECOMMENDATIONS",M,y);y+=7;
+      doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(71,85,105);
+      aiInsight.recommendations.forEach((r,i)=>{if(y>275){doc.addPage();y=20;}const rl=doc.splitTextToSize(`${String(i+1).padStart(2,"0")}. ${r}`,CW-5);doc.text(rl,M+3,y);y+=rl.length*4.5+3;});
+      y+=5;
+    }
+    // Footer
+    doc.setFontSize(8);doc.setTextColor(160,170,180);
+    doc.text("Generated by HRAI Intelligence Platform · HR Association of India · AI-Assisted Analysis · Confidential",M,287);
+    doc.save(`${effectiveSelSurvey?.title||"survey"}-ai-insight.pdf`);
+    setShowExportMenu(false);
   };
 
   const refreshCampaignData=async()=>{
@@ -3437,23 +3536,32 @@ HR Team`);
                     {surveys.map(s=><option key={s.id} value={s.id}>{s.title} — {MOCK_COMPANIES.find(c=>c.id===s.companyId)?.name}</option>)}
                   </select>
                   {selId&&selId!=="__pulse__"&&<button className="btn btg btsm" onClick={()=>setReportModal(selId)}><Ic.Lock/>Access</button>}
-                  {selId&&selId!=="__pulse__"&&(()=>{
-                    const campR=campaignResponsesMap[selId]||[];
-                    if(campR.length===0)return null;
-                    const exportCSV=()=>{
-                      const sv=surveys.find(s=>s.id===selId);
-                      const qs=SURVEY_QUESTIONS[sv?.track]||[];
-                      const headers=["Name","Email","Submitted At",...qs.map(q=>`Q${q.id}: ${q.text.replace(/,/g,";")}`)];
-                      const rows=campR.map(r=>[
-                        r.name||"",r.email||"",r.submittedAt||"",
-                        ...qs.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):(a||"");})
-                      ]);
-                      const csv=[headers,...rows].map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
-                      const blob=new Blob([csv],{type:"text/csv"});
-                      const url=URL.createObjectURL(blob);
-                      const a=document.createElement("a");a.href=url;a.download=`${sv?.title||"campaign"}-responses.csv`;a.click();URL.revokeObjectURL(url);
-                    };
-                    return <button className="btn btsm" style={{background:"linear-gradient(135deg,#059669,#0d9488)",color:"white",border:"none",fontSize:10}} onClick={exportCSV}>⬇ Export CSV ({campR.length})</button>;
+                  {selId&&(()=>{
+                    const hasData=selId==="__pulse__"?pulseResponses.length>0:(campaignResponsesMap[selId]||[]).length>0;
+                    if(!hasData)return null;
+                    const cnt=selId==="__pulse__"?pulseResponses.length:(campaignResponsesMap[selId]||[]).length;
+                    return(
+                      <div style={{position:"relative"}}>
+                        <button className="btn btsm" style={{background:"linear-gradient(135deg,#059669,#0d9488)",color:"white",border:"none",fontSize:10}} onClick={e=>{e.stopPropagation();setShowExportMenu(!showExportMenu);}}>⬇ Export Data ({cnt}) ▾</button>
+                        {showExportMenu&&(
+                          <div onClick={e=>e.stopPropagation()} style={{position:"absolute",top:"110%",right:0,background:"#1e293b",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,padding:6,minWidth:200,zIndex:999,boxShadow:"0 12px 40px rgba(0,0,0,0.5)"}}>
+                            <p style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#475569",padding:"6px 10px"}}>Response Data</p>
+                            {[{label:"CSV (.csv)",fn:exportDataCSV,icon:"📄"},{label:"Excel (.xlsx)",fn:exportDataExcel,icon:"📊"},{label:"JSON (.json)",fn:exportDataJSON,icon:"{ }"}].map(opt=>(
+                              <div key={opt.label} onClick={opt.fn} style={{padding:"8px 10px",borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",gap:8,fontSize:11,color:"#e2e8f0",transition:"background 0.15s"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.07)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                <span style={{fontSize:13,width:20,textAlign:"center"}}>{opt.icon}</span>{opt.label}
+                              </div>
+                            ))}
+                            {aiInsight&&<>
+                              <div style={{height:1,background:"rgba(255,255,255,0.08)",margin:"4px 0"}}/>
+                              <p style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#475569",padding:"6px 10px"}}>AI Insight</p>
+                              <div onClick={exportInsightPDF} style={{padding:"8px 10px",borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",gap:8,fontSize:11,color:"#e2e8f0",transition:"background 0.15s"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.07)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                <span style={{fontSize:13,width:20,textAlign:"center"}}>📑</span>PDF Report (.pdf)
+                              </div>
+                            </>}
+                          </div>
+                        )}
+                      </div>
+                    );
                   })()}
                 </div>
               </div>
