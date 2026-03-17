@@ -2162,16 +2162,16 @@ function App() {
     if(!currentUser)return;
     (async()=>{
       try{const res=await window.HRAI_API.api('/api/campaigns');if(res.ok){const data=await res.json();setSurveys(data.campaigns||data);const map={};(data.campaigns||data).forEach(c=>{if(c.responsesData)map[c.id]=c.responsesData;});setCampaignResponsesMap(map);}}catch(e){}
-      try{const res=await window.HRAI_API.api('/api/pulse');if(res.ok){const data=await res.json();setPulseResponses(data);}}catch(e){}
+      try{const res=await window.HRAI_API.api('/api/pulse');if(res.ok){const data=await res.json();setPulseResponses(Array.isArray(data)?data:data.responses||[]);}}catch(e){}
       if(currentUser.role==="superadmin"||currentUser.role==="admin"){
-        try{const res=await window.HRAI_API.api('/api/users/admins');if(res.ok){const data=await res.json();setAdminList(data);}}catch(e){}
-        try{const res=await window.HRAI_API.api('/api/users');if(res.ok){const data=await res.json();setRegisteredUsers(data);}}catch(e){}
+        try{const res=await window.HRAI_API.api('/api/users/admins');if(res.ok){const data=await res.json();setAdminList(Array.isArray(data)?data:data.admins||[]);}}catch(e){}
+        try{const res=await window.HRAI_API.api('/api/users');if(res.ok){const data=await res.json();setRegisteredUsers(Array.isArray(data)?data:data.users||[]);}}catch(e){}
       }
     })();
   },[currentUser]);
 
   useEffect(()=>{
-    (async()=>{try{const res=await window.HRAI_API.api('/api/pulse');if(res.ok){const data=await res.json();setPulseResponses(data);}}catch(e){}})();
+    (async()=>{try{const res=await window.HRAI_API.api('/api/pulse');if(res.ok){const data=await res.json();setPulseResponses(Array.isArray(data)?data:data.responses||[]);}}catch(e){}})();
     // Auto-route from URL params (shared survey links)
     const params=new URLSearchParams(window.location.search);
     const campId=params.get("campaign");
