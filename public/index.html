@@ -2264,7 +2264,7 @@ function App() {
   const createCampaign=async()=>{
     const emails=camp.emails.split(/[\n,]+/).map(e=>e.trim()).filter(e=>e.includes("@"));
     const s={title:camp.title,companyId:camp.companyId,track:camp.track,participants:emails.map(e=>({email:e,status:"Pending"})),createdAt:new Date().toISOString().split("T")[0],responses:0,active:true,aggregatedMetrics:{ownership:0,accountability:0,trust:0,communication:0,culture:0,inclusion:0},reportAccessEmails:[]};
-    try{const res=await window.HRAI_API.api('/api/campaigns',{method:'POST',body:JSON.stringify(s)});if(res.ok){const data=await res.json();setSurveys([data,...surveys]);}}catch(e){}
+    try{const res=await window.HRAI_API.api('/api/campaigns',{method:'POST',body:JSON.stringify(s)});if(res.ok){const data=await res.json();setSurveys([data.campaign||data,...surveys]);}}catch(e){}
     setView("dashboard");setCamp({title:"",companyId:"2",track:ConversationTrack.CARE,emails:""});
   };
 
@@ -2279,11 +2279,12 @@ function App() {
       const res=await window.HRAI_API.api('/api/campaigns',{method:'POST',body:JSON.stringify(s)});
       if(res.ok){
         const data=await res.json();
-        setSurveys([data,...surveys]);
+        const camp_=data.campaign||data;
+        setSurveys([camp_,...surveys]);
         setShowNewCampaign(false);
         const baseUrl=window.location.href.split("?")[0];
-        const link=`${baseUrl}?campaign=${data.id}&track=${encodeURIComponent(data.track)}&org=${encodeURIComponent(newCamp.clientName)}`;
-        setCampaignLink({id:data.id,title:data.title,org:newCamp.clientName,link});
+        const link=`${baseUrl}?campaign=${camp_.id}&track=${encodeURIComponent(camp_.track)}&org=${encodeURIComponent(newCamp.clientName)}`;
+        setCampaignLink({id:camp_.id,title:camp_.title,org:newCamp.clientName,link});
       }
     }catch(e){}
     setNewCamp({clientName:"",clientIndustry:"",campaignTitle:"",track:ConversationTrack.CARE,emails:""});
@@ -2349,13 +2350,13 @@ function App() {
   if(focusedSurveyId) return <FocusedSurvey surveyId={focusedSurveyId} campaignId={focusedCampaignId} onBack={()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);}} onComplete={focusedCampaignId?()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);refreshCampaignData();}:null}/>;
   if(showCert) return <CertSurvey onBack={()=>setShowCert(false)}/>;
   if(showPulse) return <PulseSurvey pulseResponses={pulseResponses} setPulseResponses={setPulseResponses} onBack={()=>setShowPulse(false)}/>;
-  if(currentUser?.type==="client") return <ClientPortal user={currentUser} surveys={surveys} refreshSurveys={refreshCampaignData} onLogout={()=>{window.HRAI_API.setToken(null);setCurrentUser(null);}} onTakeSurvey={(sv)=>{
+  if(currentUser?.role==="client") return <ClientPortal user={currentUser} surveys={surveys} refreshSurveys={refreshCampaignData} onLogout={()=>{window.HRAI_API.setToken(null);setCurrentUser(null);}} onTakeSurvey={(sv)=>{
     const fsMatch=FOCUSED_SURVEY_LIST.find(s=>s.id===sv.track||s.label===sv.title);
     if(fsMatch){setFocusedSurveyId(fsMatch.id);setFocusedCampaignId(sv.id);}
     else if(sv.track===ConversationTrack.CERT){setShowCert(true);}
     else if(sv.track===ConversationTrack.CARE||sv.track===ConversationTrack.CLARITY){
       const comp=MOCK_COMPANIES.find(c=>c.id===sv.companyId);
-      setActiveCampaignSurvey({id:sv.id,track:sv.track,org:comp?.name||sv.title});
+      setActiveCampaignSurvey({id:sv.id,track:sv.track,org:comp?.name||sv.companyName||sv.title});
     }
     else{setShowPulse(true);}
   }}/>;
@@ -3006,7 +3007,7 @@ HR Team`);
                   if(!newAdminForm.name||!newAdminForm.email.includes("@")||!newAdminForm.password)return;
                   try{
                     const res=await window.HRAI_API.api('/api/users/admins',{method:'POST',body:JSON.stringify({name:newAdminForm.name,email:newAdminForm.email,password:newAdminForm.password,permissions:{dashboard:true,campaigns:true,insights:true,certification:false}})});
-                    if(res.ok){const data=await res.json();setAdminList([...adminList,data]);setNewAdminForm({name:"",email:"",password:""});}
+                    if(res.ok){const data=await res.json();setAdminList([...adminList,data.admin||data]);setNewAdminForm({name:"",email:"",password:""});}
                   }catch(e){}
                 }}><Ic.Plus/> Add Admin</button>
               </div>
@@ -3102,7 +3103,7 @@ HR Team`);
                   if(!adminRightsForm.name||!adminRightsForm.email.includes("@")||!adminRightsForm.password)return;
                   try{
                     const res=await window.HRAI_API.api('/api/users/admins',{method:'POST',body:JSON.stringify({name:adminRightsForm.name,email:adminRightsForm.email,password:adminRightsForm.password,permissions:adminRightsPerms})});
-                    if(res.ok){const data=await res.json();setAdminList([...adminList,data]);setAdminRightsForm({name:"",email:"",password:""});setAdminRightsPerms({dashboard:true,campaigns:true,insights:true,certification:false});}
+                    if(res.ok){const data=await res.json();setAdminList([...adminList,data.admin||data]);setAdminRightsForm({name:"",email:"",password:""});setAdminRightsPerms({dashboard:true,campaigns:true,insights:true,certification:false});}
                   }catch(e){}
                 }}><Ic.Plus/> Add Admin with Permissions</button>
               </div>
