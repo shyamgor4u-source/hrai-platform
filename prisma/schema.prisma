@@ -1,0 +1,106 @@
+// prisma/schema.prisma — HRAI Intelligence Platform v2
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users (admins, superadmins, clients) ─────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  phone       String?
+  company     String?
+  role        String   @default("client") // superadmin | admin | client
+  verified    Boolean  @default(false)
+  permissions Json?    // {dashboard:bool, campaigns:bool, insights:bool, certification:bool}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns Campaign[] @relation("CampaignOwner")
+
+  @@map("users")
+}
+
+// ── Campaigns ────────────────────────────────────────────────────────────────
+
+model Campaign {
+  id              String   @id @default(cuid())
+  title           String
+  companyId       String?
+  companyName     String?
+  companyIndustry String?
+  track           String   @default("C.A.R.E. (OPEN)")
+  status          String   @default("active") // draft | active | closed
+  active          Boolean  @default(true)
+  participants    Json     @default("[]")      // [{email, status}]
+  aggregatedMetrics Json   @default("{}")      // {pillar: score}
+  aiInsight       Json?                        // cached AI insight
+  pdfInsight      Json?                        // cached PDF report insight
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ownerId String
+  owner   User   @relation("CampaignOwner", fields: [ownerId], references: [id])
+
+  responses    Response[]
+  reportAccess ReportAccess[]
+
+  @@map("campaigns")
+}
+
+// ── Survey Responses (per campaign) ──────────────────────────────────────────
+
+model Response {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String?
+  answers     Json
+  metrics     Json?    // per-response pillar scores
+  submittedAt DateTime @default(now())
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("responses")
+}
+
+// ── Report Access (email-based per campaign) ─────────────────────────────────
+
+model ReportAccess {
+  id    String @id @default(cuid())
+  email String
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, email])
+  @@map("report_access")
+}
+
+// ── ESI Pulse Responses ──────────────────────────────────────────────────────
+
+model PulseResponse {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?
+  phone     String?
+  linkedin  String?
+  location  String?
+  gender    String?
+  salary    String?
+  designation String?
+  industry  String?
+  lookingForChange String?
+  answers   Json
+  createdAt DateTime @default(now())
+
+  @@map("pulse_responses")
+}
