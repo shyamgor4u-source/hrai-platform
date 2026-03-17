@@ -2328,7 +2328,8 @@ function App() {
     try{
       const res=await window.HRAI_API.api('/api/ai/campaign-insights',{method:'POST',body:JSON.stringify({campaignTitle:survey.title,responses:survey.responses,aggregatedMetrics:survey.aggregatedMetrics})});
       const data=await res.json();
-      setAiInsight(data);
+      const raw=data.insight||data;
+      setAiInsight({summary:raw.executiveSummary||raw.summary||"",themes:[...(raw.strengths||[]),...(raw.concerns||[]),...(raw.themes||[])],recommendations:raw.recommendations||[],overallScore:raw.overallScore,sentiment:raw.sentiment});
     }catch(e){setAiInsight({summary:"Analysis unavailable. Check connection.",themes:[],recommendations:[]});}
     finally{setGenerating(false);}
   };
@@ -2349,7 +2350,7 @@ function App() {
   if(activeCampaignSurvey) return <CampaignSurveyFlow campaignId={activeCampaignSurvey.id} track={activeCampaignSurvey.track} org={activeCampaignSurvey.org} onBack={()=>setActiveCampaignSurvey(null)} onComplete={()=>{setActiveCampaignSurvey(null);refreshCampaignData();}}/>;
   if(focusedSurveyId) return <FocusedSurvey surveyId={focusedSurveyId} campaignId={focusedCampaignId} onBack={()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);}} onComplete={focusedCampaignId?()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);refreshCampaignData();}:null}/>;
   if(showCert) return <CertSurvey onBack={()=>setShowCert(false)}/>;
-  if(showPulse) return <PulseSurvey pulseResponses={pulseResponses} setPulseResponses={setPulseResponses} onBack={()=>setShowPulse(false)}/>;
+  if(showPulse) return <PulseSurvey pulseResponses={pulseResponses} setPulseResponses={setPulseResponses} onBack={()=>{window.history.pushState({},'',window.location.pathname);setShowPulse(false);}}/>;
   if(currentUser?.role==="client") return <ClientPortal user={currentUser} surveys={surveys} refreshSurveys={refreshCampaignData} onLogout={()=>{window.HRAI_API.setToken(null);setCurrentUser(null);}} onTakeSurvey={(sv)=>{
     const fsMatch=FOCUSED_SURVEY_LIST.find(s=>s.id===sv.track||s.label===sv.title);
     if(fsMatch){setFocusedSurveyId(fsMatch.id);setFocusedCampaignId(sv.id);}
@@ -2512,7 +2513,7 @@ function App() {
           <div style={{marginBottom:20,padding:"12px 16px",background:"rgba(13,148,136,0.07)",border:"1px solid rgba(13,148,136,0.2)",borderRadius:10,textAlign:"center"}}>
             <p style={{fontSize:11,fontWeight:700,color:"#34d399",marginBottom:4}}>📋 Take the Open ESI Survey</p>
             <p style={{fontSize:10,color:"#475569",marginBottom:10}}>No account needed — open to all employees</p>
-            <button onClick={()=>setShowPulse(true)} style={{background:"linear-gradient(135deg,#059669,#0d9488)",color:"white",border:"none",padding:"8px 20px",borderRadius:8,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+            <button onClick={()=>{window.history.pushState({},'','?survey=esi');setShowPulse(true);}} style={{background:"linear-gradient(135deg,#059669,#0d9488)",color:"white",border:"none",padding:"8px 20px",borderRadius:8,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
               Take Survey — No Login Required →
             </button>
           </div>
@@ -3141,7 +3142,7 @@ HR Team`);
           })()}
           <div className="divider" style={{margin:"10px 0"}}/>
           <p style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.12em",color:"#334155",padding:"6px 8px",marginBottom:2}}>Open Survey</p>
-          <div style={{padding:"12px 14px",borderRadius:10,background:"rgba(13,148,136,0.07)",border:"1px solid rgba(13,148,136,0.15)",cursor:"pointer",marginBottom:4}} onClick={()=>setShowPulse(true)}>
+          <div style={{padding:"12px 14px",borderRadius:10,background:"rgba(13,148,136,0.07)",border:"1px solid rgba(13,148,136,0.15)",cursor:"pointer",marginBottom:4}} onClick={()=>{window.history.pushState({},'','?survey=esi');setShowPulse(true);}}>
             <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:6}}><Ic.Globe/><p style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#0d9488"}}>{ESI_NAME.split("(")[0].trim()}</p></div>
             <div className="pt" style={{marginBottom:5}}><div className="pf" style={{width:`${pulsePct}%`,background:"linear-gradient(90deg,#059669,#0d9488)"}}/></div>
             <p style={{fontSize:10,color:"#64748b"}}>{pulseResponses.length}/{PULSE_GOAL} responses</p>
@@ -3233,7 +3234,7 @@ HR Team`);
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <button className="btn btg btsm" onClick={()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);}}><Ic.Copy/>{copied?"Copied!":"Copy Link"}</button>
-                  <button className="btn btpl btsm" onClick={()=>setShowPulse(true)}>Open Survey →</button>
+                  <button className="btn btpl btsm" onClick={()=>{window.history.pushState({},'','?survey=esi');setShowPulse(true);}}>Open Survey →</button>
                 </div>
               </div>
 
@@ -3367,7 +3368,7 @@ HR Team`);
                     </div>
                   </div>
                   <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <button className="btn btpl btsm" onClick={()=>setShowPulse(true)}><Ic.Globe/>Open Survey</button>
+                    <button className="btn btpl btsm" onClick={()=>{window.history.pushState({},'','?survey=esi');setShowPulse(true);}}><Ic.Globe/>Open Survey</button>
                     <button className="btn btg btsm" onClick={()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);}}><Ic.Copy/>{copied?"Copied!":"Copy Link"}</button>
                   </div>
                 </div>
