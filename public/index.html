@@ -3265,6 +3265,30 @@ HR Team`);
                 {isSuperAdmin&&<button className="ni" style={{fontSize:11,color:"#38bdf8"}} onClick={()=>{setShowOptionsMenu(false);setShowDataInfo(true);}}>
                   🗄️ Data Storage Info
                 </button>}
+                {isSuperAdmin&&<>
+                  <div style={{height:1,background:"rgba(255,255,255,0.06)",margin:"4px 0"}}/>
+                  <p style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#475569",padding:"4px 8px"}}>Downloads</p>
+                  <button className="ni" style={{fontSize:11,color:"#34d399"}} onClick={()=>{
+                    const headers=["Name","Email","Phone","Company","Role","Verified","Registered At"];
+                    const rows=registeredUsers.map(u=>[u.name||"",u.email||"",u.phone||"",u.company||"",u.role||"",u.verified?"Yes":"No",u.createdAt?new Date(u.createdAt).toLocaleString("en-IN"):""]);
+                    const csv=[headers,...rows].map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+                    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+                    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`HRAI-Registered-Users-${new Date().toISOString().split("T")[0]}.csv`;a.click();URL.revokeObjectURL(url);
+                    setShowOptionsMenu(false);
+                  }}>
+                    📥 Registered Users ({registeredUsers.length})
+                  </button>
+                  <button className="ni" style={{fontSize:11,color:"#34d399"}} onClick={()=>{
+                    const headers=["Name","Email","Phone","LinkedIn","Location","Gender","Designation","Industry","Salary Range","Looking for Change","Submitted At",...PULSE_QUESTIONS.map(q=>`${q.id.toUpperCase()}: ${q.text}`)];
+                    const rows=pulseResponses.map(r=>[r.name||"",r.email||"",r.phone||"",r.linkedin||"",r.location||"",r.gender||"",r.designation||"",r.industry||"",r.salary||"",r.lookingForChange||"",r.createdAt?new Date(r.createdAt).toLocaleString("en-IN"):"", ...PULSE_QUESTIONS.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):(a||"")})]);
+                    const csv=[headers,...rows].map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+                    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+                    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`HRAI-ESI-Pulse-Respondents-${new Date().toISOString().split("T")[0]}.csv`;a.click();URL.revokeObjectURL(url);
+                    setShowOptionsMenu(false);
+                  }}>
+                    📥 ESI Pulse Respondents ({pulseResponses.length})
+                  </button>
+                </>}
               </div>
             )}
           </div>

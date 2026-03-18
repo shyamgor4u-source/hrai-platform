@@ -7,10 +7,16 @@ const prisma = new PrismaClient();
 
 const ADMINS = [
   {
+    email: 'shyam.gor@outlook.com',
+    password: 'HRAI@123',
+    name: 'Shyam Gor',
+    role: 'superadmin',
+  },
+  {
     email: 'team@hrassociationofindia.com',
     password: 'HRAI@2026',
-    name: 'HRAI Master Admin',
-    role: 'superadmin',
+    name: 'HRAI Admin',
+    role: 'admin',
   },
   {
     email: 'admin2@hrassociationofindia.com',
