@@ -155,4 +155,65 @@ router.post('/culture-insight', authenticate, ensureAI, async (req, res) => {
   }
 });
 
+// POST /api/ai/esi-dynamic-report — ESI demographic cross-tabulated intelligence report
+// Returns JSON: {report: {headline, executiveSummary, keyFindings[], atRiskSegments[], strongSegments[], pillarAnalysis[], recommendations[], overallSentiment}}
+router.post('/esi-dynamic-report', authenticate, ensureAI, async (req, res) => {
+  try {
+    const { totalResponses, overallScore, themeScores, demographics } = req.body;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2500,
+      system: `You are a senior HR intelligence analyst for HRAI (HR Association of India). You specialise in cross-tabulating employee sentiment data with demographics to find hidden patterns.
+
+You will receive ESI (Employee Sentiment Index) data broken down by demographics: designation grade, industry, gender, salary bracket, city/location, and job-change intent. Each group has a count, average sentiment score (0-100), per-pillar scores, and change rate (% actively seeking new job).
+
+Generate a COMPREHENSIVE, DATA-DRIVEN intelligence report. Your insights must reference specific numbers from the data. Use patterns like "X% of [designation] in [industry] are actively looking for change" or "[Gender] respondents rate [pillar] Y points lower than [other gender]".
+
+Respond ONLY with a JSON object (no markdown, no backticks). Keys:
+- headline (string — one punchy data-backed headline, max 15 words)
+- executiveSummary (string — 3-4 sentences summarizing the most important cross-demographic findings)
+- keyFindings (array of 5-7 objects: {title: string, insight: string, severity: "high"|"medium"|"low"})
+- atRiskSegments (array of 2-4 objects: {segment: string, score: number, changeRate: number, concern: string})
+- strongSegments (array of 2-3 objects: {segment: string, score: number, insight: string})
+- pillarAnalysis (array of exactly 8 objects for each pillar: {pillar: string, score: number, demographicInsight: string})
+- recommendations (string[] — 5-6 specific, actionable items referencing the data)
+- overallSentiment ("positive" | "mixed" | "needs attention")`,
+      messages: [{
+        role: 'user',
+        content: `ESI REPORT DATA:
+Total Responses: ${totalResponses}
+Overall Score: ${overallScore}/100
+Theme Scores: ${JSON.stringify(themeScores)}
+
+DEMOGRAPHIC BREAKDOWNS:
+By Designation: ${JSON.stringify(demographics?.byDesignation || [])}
+By Industry: ${JSON.stringify(demographics?.byIndustry || [])}
+By Gender: ${JSON.stringify(demographics?.byGender || [])}
+By Salary Bracket: ${JSON.stringify(demographics?.bySalary || [])}
+By City: ${JSON.stringify(demographics?.byLocation || [])}
+By Change Intent: ${JSON.stringify(demographics?.byChangeIntent || [])}`,
+      }],
+    });
+
+    const text = (message.content || []).map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    res.json({ report: JSON.parse(clean) });
+  } catch (err) {
+    console.error('[AI ESI Dynamic Report]', err);
+    res.json({
+      report: {
+        headline: 'ESI Intelligence Report — Manual Review Required',
+        executiveSummary: 'AI-powered cross-demographic analysis is temporarily unavailable. Please review the data breakdowns manually.',
+        keyFindings: [{ title: 'AI Unavailable', insight: 'The AI engine could not generate insights at this time. Try again later.', severity: 'medium' }],
+        atRiskSegments: [],
+        strongSegments: [],
+        pillarAnalysis: Object.entries(themeScores || {}).map(([k, v]) => ({ pillar: k, score: v, demographicInsight: 'Analysis pending.' })),
+        recommendations: ['Retry report generation', 'Review raw demographic data in CSV exports', 'Conduct manual cross-tabulation'],
+        overallSentiment: 'mixed',
+      },
+    });
+  }
+});
+
 module.exports = router;
