@@ -46,7 +46,7 @@
 
 const HRAI_ADMINS = [];
 const CLIENT_ACCOUNTS = []; // No default client accounts — all clients register via the registration form
-const ConversationTrack = { CARE:"C.A.R.E. (OPEN)", CLARITY:"C.L.A.R.I.T.Y. (ALIGN)", CERT:"HRAI CERTIFICATION" };
+const ConversationTrack = { CARE:"C.A.R.E. (OPEN)", CLARITY:"C.L.A.R.I.T.Y. (ALIGN)", CERT:"PEOPLE WORKPLACE CERTIFICATION" };
 const MOCK_COMPANIES = [
   { id:"1", name:"HRAI Internal", industry:"HR Consulting" },
 ];
@@ -1177,7 +1177,7 @@ function PulseSurvey({ pulseResponses, setPulseResponses, onBack }) {
 // ── Client Portal ──────────────────────────────────────────────────────────────
 
 // ──────────────────────────────────────────────
-// HRAI CERTIFICATION SURVEY COMPONENT
+// PEOPLE WORKPLACE CERTIFICATION SURVEY COMPONENT
 // ──────────────────────────────────────────────
 const CERT_PAGES = 10;
 const CERT_PER_PAGE = 10;
@@ -1237,7 +1237,7 @@ function CertSurvey({ onBack, survey }) {
       <div style={{maxWidth:680,margin:"0 auto",padding:"60px 20px",textAlign:"center"}}>
         <div style={{marginBottom:32}}>
           <div style={{fontSize:56,marginBottom:16}}>🏆</div>
-          <div className="badge" style={{background:"rgba(245,158,11,0.15)",color:"#fbbf24",border:"1px solid rgba(245,158,11,0.3)",marginBottom:20,fontSize:11}}>HRAI Certification Survey · 100 Questions · 10 Sections</div>
+          <div className="badge" style={{background:"rgba(245,158,11,0.15)",color:"#fbbf24",border:"1px solid rgba(245,158,11,0.3)",marginBottom:20,fontSize:11}}>People Workplace Certification Survey · 100 Questions · 10 Sections</div>
           <h1 style={{fontSize:38,fontWeight:800,color:"#f8fafc",letterSpacing:"-0.03em",marginBottom:12}}>HRAI Workplace Certification</h1>
           <p style={{fontSize:15,color:"#64748b",lineHeight:1.8,maxWidth:500,margin:"0 auto 40px"}}>A comprehensive 100-question survey across 10 workplace dimensions. Used by HRAI to certify organisations as exceptional places to work across India.</p>
         </div>
@@ -1269,7 +1269,7 @@ function CertSurvey({ onBack, survey }) {
         <button className="btn btg btsm" style={{marginBottom:24}} onClick={()=>setPhase("intro")}>← Back</button>
         <div className="pub-card">
           <div style={{padding:"28px 32px 22px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:"linear-gradient(135deg,rgba(245,158,11,0.07),transparent)"}}>
-            <div className="badge" style={{background:"rgba(245,158,11,0.12)",color:"#fbbf24",border:"1px solid rgba(245,158,11,0.25)",marginBottom:10}}>🏆 HRAI Certification</div>
+            <div className="badge" style={{background:"rgba(245,158,11,0.12)",color:"#fbbf24",border:"1px solid rgba(245,158,11,0.25)",marginBottom:10}}>🏆 People Workplace Certification</div>
             <h2 style={{fontSize:22,fontWeight:700,color:"#f1f5f9"}}>Your Details</h2>
             <p style={{color:"#475569",fontSize:13,marginTop:6,lineHeight:1.6}}>Your responses are <strong style={{color:"#34d399"}}>completely anonymous</strong>. Your name and email are only used to prevent duplicate submissions — they are never linked to your individual answers in any report.</p>
           </div>
@@ -1312,7 +1312,7 @@ function CertSurvey({ onBack, survey }) {
           {/* Overall progress bar */}
           <div style={{marginBottom:20,padding:"14px 20px",background:"rgba(255,255,255,0.02)",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)"}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
-              <span style={{fontSize:11,fontWeight:700,color:"#fbbf24"}}>🏆 HRAI Certification</span>
+              <span style={{fontSize:11,fontWeight:700,color:"#fbbf24"}}>🏆 People Workplace Certification</span>
               <span style={{fontSize:11,color:"#64748b"}}>Section {page} of {CERT_PAGES} · {progress}% complete</span>
             </div>
             <div className="pt" style={{height:5}}><div className="pf" style={{width:`${progress}%`,background:"linear-gradient(90deg,#f59e0b,#fcd34d)"}}/></div>
@@ -1372,7 +1372,7 @@ function CertSurvey({ onBack, survey }) {
               <span style={{fontSize:22}}>🔒</span>
               <div>
                 <p style={{fontSize:13,fontWeight:700,color:"#34d399",marginBottom:4}}>Your anonymity is fully protected</p>
-                <p style={{fontSize:12,color:"#475569",lineHeight:1.65}}>Your individual responses are never visible to anyone. Only aggregated, anonymised results are shared with HR leadership as part of the HRAI Certification report.</p>
+                <p style={{fontSize:12,color:"#475569",lineHeight:1.65}}>Your individual responses are never visible to anyone. Only aggregated, anonymised results are shared with HR leadership as part of the People Workplace Certification report.</p>
               </div>
             </div>
           </div>
@@ -2860,7 +2860,7 @@ function App() {
                     <optgroup label="── Core Frameworks">
                       <option value={ConversationTrack.CARE}>🔵 C.A.R.E. — Culture & Engagement (50 Qs)</option>
                       <option value={ConversationTrack.CLARITY}>🟣 C.L.A.R.I.T.Y. — Leadership Alignment (50 Qs)</option>
-                      <option value={ConversationTrack.CERT}>🏆 HRAI Certification — Full Audit (100 Qs)</option>
+                      <option value={ConversationTrack.CERT}>🏆 People Workplace Certification — Full Audit (100 Qs)</option>
                     </optgroup>
                     <optgroup label="── Focused Skill Surveys (25 Qs each)">
                       {FOCUSED_SURVEY_LIST.map(s=><option key={s.id} value={s.id} style={{background:"#0f172a"}}>{s.icon} {s.label}</option>)}
@@ -3664,7 +3664,7 @@ HR Team`);
                         <select value={camp.track} onChange={e=>setCamp({...camp,track:e.target.value})}>
                           <option value={ConversationTrack.CARE}>C.A.R.E. (Open)</option>
                           <option value={ConversationTrack.CLARITY}>C.L.A.R.I.T.Y. (Align)</option>
-                          <option value={ConversationTrack.CERT}>🏆 HRAI Certification</option>
+                          <option value={ConversationTrack.CERT}>🏆 People Workplace Certification</option>
                         </select>
                       </div>
                     </div>
@@ -3740,7 +3740,7 @@ HR Team`);
                       const health=overall>=80?"Excellent":overall>=70?"Good":overall>=55?"Moderate":"Needs Attention";
                       const hColor=overall>=80?"#34d399":overall>=70?"#4ade80":overall>=55?"#fbbf24":"#f87171";
                       const hBg=overall>=80?"rgba(52,211,153,0.08)":overall>=70?"rgba(74,222,128,0.07)":overall>=55?"rgba(251,191,36,0.08)":"rgba(248,113,113,0.08)";
-                      const trackLabel=effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E. Framework":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y. Framework":"HRAI Certification";
+                      const trackLabel=effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E. Framework":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y. Framework":"People Workplace Certification";
                       const pillars=Object.entries(effectiveSelSurvey.aggregatedMetrics||{});
                       return(
                         <div style={{background:`linear-gradient(135deg,${hBg},rgba(15,24,41,0.6))`,border:`1px solid ${hColor}30`,borderRadius:14,padding:"28px 32px",marginBottom:16,position:"relative",overflow:"hidden"}}>
@@ -3842,7 +3842,7 @@ HR Team`);
                           ?<p style={{fontSize:12,color:"#94a3b8"}}><span style={{color:"#e2e8f0",fontWeight:600}}>Type:</span> Open Public Survey</p>
                           :<>
                             <p style={{fontSize:12,color:"#94a3b8",marginBottom:3}}><span style={{color:"#e2e8f0",fontWeight:600}}>Client:</span> {MOCK_COMPANIES.find(c=>c.id===effectiveSelSurvey.companyId)?.name}</p>
-                            <p style={{fontSize:12,color:"#94a3b8",marginBottom:3}}><span style={{color:"#e2e8f0",fontWeight:600}}>Framework:</span> {effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E.":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y.":"🏆 CERT"}</p>
+                            <p style={{fontSize:12,color:"#94a3b8",marginBottom:3}}><span style={{color:"#e2e8f0",fontWeight:600}}>Framework:</span> {effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E.":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y.":"🏆 PWC"}</p>
                             <p style={{fontSize:12,color:"#94a3b8"}}><span style={{color:"#e2e8f0",fontWeight:600}}>Started:</span> {effectiveSelSurvey.createdAt}</p>
                           </>
                         }
@@ -4058,7 +4058,7 @@ HR Team`);
             <div>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:20,flexWrap:"wrap",gap:12}}>
                 <div>
-                  <h3 style={{fontSize:20,fontWeight:800,color:"#f8fafc",marginBottom:3,letterSpacing:"-0.02em"}}>🏆 HRAI Certification</h3>
+                  <h3 style={{fontSize:20,fontWeight:800,color:"#f8fafc",marginBottom:3,letterSpacing:"-0.02em"}}>🏆 People Workplace Certification</h3>
                   <p style={{color:"#64748b",fontSize:12}}>Certify your organisation as a great place to work</p>
                 </div>
               </div>
@@ -4104,11 +4104,11 @@ HR Team`);
               {/* Launch button */}
               <div className="card" style={{textAlign:"center",padding:"32px"}}>
                 <p style={{fontSize:15,fontWeight:700,color:"#e2e8f0",marginBottom:8}}>Launch Certification Survey</p>
-                <p style={{fontSize:13,color:"#475569",marginBottom:24,lineHeight:1.7}}>Run the HRAI Certification survey across your organisation. Results are analysed across 10 dimensions to determine your certification tier.</p>
+                <p style={{fontSize:13,color:"#475569",marginBottom:24,lineHeight:1.7}}>Run the People Workplace Certification survey across your organisation. Results are analysed across 10 dimensions to determine your certification tier.</p>
                 <button className="btn btpl" style={{padding:"13px 32px",fontSize:13}} onClick={()=>setShowCert(true)}>
                   🏆 Preview Certification Survey
                 </button>
-                <p style={{fontSize:11,color:"#334155",marginTop:12}}>To run a full certification for a company, create a new campaign and select "HRAI Certification" as the framework.</p>
+                <p style={{fontSize:11,color:"#334155",marginTop:12}}>To run a full certification for a company, create a new campaign and select "People Workplace Certification" as the framework.</p>
               </div>
             </div>
           )}
