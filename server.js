@@ -9,12 +9,13 @@ const morgan   = require('morgan');
 const path     = require('path');
 const rateLimit = require('express-rate-limit');
 
-const authRoutes      = require('./src/routes/auth');
-const userRoutes      = require('./src/routes/users');
-const campaignRoutes  = require('./src/routes/campaigns');
-const responseRoutes  = require('./src/routes/responses');
-const pulseRoutes     = require('./src/routes/pulse');
-const aiRoutes        = require('./src/routes/ai');
+const authRoutes            = require('./src/routes/auth');
+const userRoutes            = require('./src/routes/users');
+const campaignRoutes        = require('./src/routes/campaigns');
+const responseRoutes        = require('./src/routes/responses');
+const pulseRoutes           = require('./src/routes/pulse');
+const focusedSurveyRoutes   = require('./src/routes/focused-survey');
+const aiRoutes              = require('./src/routes/ai');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -84,8 +85,9 @@ const responsesRouter = express.Router({ mergeParams: true });
 responsesRouter.use('/:id/responses', responseRoutes);
 app.use('/api/campaigns', apiLimiter, responsesRouter);
 
-app.use('/api/pulse',     apiLimiter, pulseRoutes);
-app.use('/api/ai',        aiLimiter, aiRoutes);
+app.use('/api/pulse',           apiLimiter, pulseRoutes);
+app.use('/api/focused-survey',  apiLimiter, focusedSurveyRoutes);
+app.use('/api/ai',              aiLimiter, aiRoutes);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -110,6 +112,27 @@ app.use((err, req, res, next) => {
   console.error('[Unhandled Error]', err);
   res.status(500).json({ error: 'Internal server error.' });
 });
+
+// ── Ensure DB tables exist ────────────────────────────────────────────────────
+const prisma = require('./src/db');
+(async () => {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS focused_public_responses (
+        id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        "surveyId" TEXT NOT NULL,
+        name TEXT,
+        email TEXT,
+        answers JSONB NOT NULL,
+        score INTEGER,
+        "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('[DB] focused_public_responses table ready.');
+  } catch (err) {
+    console.error('[DB Init]', err.message);
+  }
+})();
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {

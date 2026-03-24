@@ -46,7 +46,7 @@
 
 const HRAI_ADMINS = [];
 const CLIENT_ACCOUNTS = []; // No default client accounts — all clients register via the registration form
-const ConversationTrack = { CARE:"C.A.R.E. (OPEN)", CLARITY:"C.L.A.R.I.T.Y. (ALIGN)", CERT:"PEOPLE WORKPLACE CERTIFICATION" };
+const ConversationTrack = { CARE:"C.A.R.E. (OPEN)", CLARITY:"C.L.A.R.I.T.Y. (ALIGN)", CERT:"PEOPLE WORKPLACE CERTIFICATION", SAFE_PLACE:"SAFE PLACE TO WORK" };
 const MOCK_COMPANIES = [
   { id:"1", name:"HRAI Internal", industry:"HR Consulting" },
 ];
@@ -361,6 +361,128 @@ const CERT_PILLAR_COLORS = {
   Recognition:"#f472b6", Communication:"#818cf8", Innovation:"#4ade80", Overall:"#fcd34d"
 };
 
+// ─────────────────────────────────────────────────────────
+// SAFE PLACE TO WORK CERTIFICATION — 100 Qs, 10 Pillars
+// ─────────────────────────────────────────────────────────
+const SAFE_PLACE_QUESTIONS = [
+  // PAGE 1 — Physical Safety & Infrastructure (1-10)
+  { id:"sp1",  page:1, pillar:"Physical Safety", text:"The workplace is free from physical hazards that could cause injury." },
+  { id:"sp2",  page:1, pillar:"Physical Safety", text:"Emergency exits are clearly marked and accessible at all times." },
+  { id:"sp3",  page:1, pillar:"Physical Safety", text:"Fire safety equipment is regularly maintained and easily accessible." },
+  { id:"sp4",  page:1, pillar:"Physical Safety", text:"The workplace meets all applicable health and safety regulatory standards." },
+  { id:"sp5",  page:1, pillar:"Physical Safety", text:"Adequate lighting, ventilation, and ergonomic facilities are provided." },
+  { id:"sp6",  page:1, pillar:"Physical Safety", text:"Safety signage and instructions are visible and up to date." },
+  { id:"sp7",  page:1, pillar:"Physical Safety", text:"First-aid kits and medical support are readily available on-site." },
+  { id:"sp8",  page:1, pillar:"Physical Safety", text:"Regular safety audits and inspections are conducted in the workplace." },
+  { id:"sp9",  page:1, pillar:"Physical Safety", text:"Transport and commute safety measures are provided or supported by the organisation." },
+  { id:"sp10", page:1, pillar:"Physical Safety", text:"The workplace infrastructure is maintained to prevent accidents and injuries." },
+  // PAGE 2 — Psychological Safety (11-20)
+  { id:"sp11", page:2, pillar:"Psychological Safety", text:"I feel safe to express my opinions without fear of ridicule or retaliation." },
+  { id:"sp12", page:2, pillar:"Psychological Safety", text:"Mistakes are treated as learning opportunities, not grounds for punishment." },
+  { id:"sp13", page:2, pillar:"Psychological Safety", text:"I can ask questions or seek help without being judged negatively." },
+  { id:"sp14", page:2, pillar:"Psychological Safety", text:"My manager creates an environment where I feel valued and heard." },
+  { id:"sp15", page:2, pillar:"Psychological Safety", text:"I am not subjected to undue pressure, intimidation, or verbal abuse at work." },
+  { id:"sp16", page:2, pillar:"Psychological Safety", text:"The organisation actively promotes mental health awareness and support." },
+  { id:"sp17", page:2, pillar:"Psychological Safety", text:"I feel comfortable raising concerns about unfair treatment or unsafe conditions." },
+  { id:"sp18", page:2, pillar:"Psychological Safety", text:"Team dynamics are healthy and free from bullying or social exclusion." },
+  { id:"sp19", page:2, pillar:"Psychological Safety", text:"I trust that my emotional well-being matters to this organisation." },
+  { id:"sp20", page:2, pillar:"Psychological Safety", text:"Disagreements at work are handled respectfully and constructively." },
+  // PAGE 3 — Anti-Harassment & Zero Tolerance (21-30)
+  { id:"sp21", page:3, pillar:"Anti-Harassment", text:"The organisation has a clearly defined anti-harassment policy." },
+  { id:"sp22", page:3, pillar:"Anti-Harassment", text:"All employees are made aware of what constitutes workplace harassment." },
+  { id:"sp23", page:3, pillar:"Anti-Harassment", text:"Complaints of harassment are taken seriously and investigated promptly." },
+  { id:"sp24", page:3, pillar:"Anti-Harassment", text:"There is zero tolerance for sexual harassment in this workplace." },
+  { id:"sp25", page:3, pillar:"Anti-Harassment", text:"I have never witnessed or experienced harassment being ignored or dismissed." },
+  { id:"sp26", page:3, pillar:"Anti-Harassment", text:"The organisation takes disciplinary action against proven harassers regardless of seniority." },
+  { id:"sp27", page:3, pillar:"Anti-Harassment", text:"POSH (Prevention of Sexual Harassment) or equivalent committees are active and accessible." },
+  { id:"sp28", page:3, pillar:"Anti-Harassment", text:"I feel confident that reporting harassment will not lead to retaliation against me." },
+  { id:"sp29", page:3, pillar:"Anti-Harassment", text:"Anti-harassment training is conducted regularly for all employees." },
+  { id:"sp30", page:3, pillar:"Anti-Harassment", text:"The workplace culture actively discourages inappropriate jokes, comments, or behaviour." },
+  // PAGE 4 — Emergency Preparedness (31-40)
+  { id:"sp31", page:4, pillar:"Emergency Preparedness", text:"The organisation has a documented emergency response plan." },
+  { id:"sp32", page:4, pillar:"Emergency Preparedness", text:"Emergency drills (fire, earthquake, evacuation) are conducted regularly." },
+  { id:"sp33", page:4, pillar:"Emergency Preparedness", text:"Employees know their roles and assembly points during emergencies." },
+  { id:"sp34", page:4, pillar:"Emergency Preparedness", text:"Emergency contact numbers are prominently displayed in the workplace." },
+  { id:"sp35", page:4, pillar:"Emergency Preparedness", text:"The organisation has designated safety marshals or wardens on every floor." },
+  { id:"sp36", page:4, pillar:"Emergency Preparedness", text:"Crisis communication protocols are clear and tested periodically." },
+  { id:"sp37", page:4, pillar:"Emergency Preparedness", text:"The organisation provides training on handling medical emergencies." },
+  { id:"sp38", page:4, pillar:"Emergency Preparedness", text:"Natural disaster preparedness measures are in place for the region." },
+  { id:"sp39", page:4, pillar:"Emergency Preparedness", text:"Business continuity plans exist to handle disruptions effectively." },
+  { id:"sp40", page:4, pillar:"Emergency Preparedness", text:"I feel confident that the organisation can handle an emergency situation effectively." },
+  // PAGE 5 — Inclusivity & Respect (41-50)
+  { id:"sp41", page:5, pillar:"Inclusivity & Respect", text:"Every employee is treated with dignity regardless of their role or level." },
+  { id:"sp42", page:5, pillar:"Inclusivity & Respect", text:"The organisation actively promotes diversity in hiring and promotion." },
+  { id:"sp43", page:5, pillar:"Inclusivity & Respect", text:"People with disabilities are provided appropriate accommodations and support." },
+  { id:"sp44", page:5, pillar:"Inclusivity & Respect", text:"Gender-neutral policies and facilities are available where applicable." },
+  { id:"sp45", page:5, pillar:"Inclusivity & Respect", text:"Cultural and religious practices of employees are respected and accommodated." },
+  { id:"sp46", page:5, pillar:"Inclusivity & Respect", text:"No employee is discriminated against based on caste, creed, gender, or orientation." },
+  { id:"sp47", page:5, pillar:"Inclusivity & Respect", text:"The organisation celebrates diversity through events, policies, or initiatives." },
+  { id:"sp48", page:5, pillar:"Inclusivity & Respect", text:"Language barriers are addressed to ensure all employees can participate fully." },
+  { id:"sp49", page:5, pillar:"Inclusivity & Respect", text:"Contractual and gig workers are treated with the same respect as permanent employees." },
+  { id:"sp50", page:5, pillar:"Inclusivity & Respect", text:"I feel a genuine sense of belonging and inclusion at this workplace." },
+  // PAGE 6 — Reporting & Whistleblower Protection (51-60)
+  { id:"sp51", page:6, pillar:"Reporting & Protection", text:"There are clear, accessible channels for reporting safety concerns." },
+  { id:"sp52", page:6, pillar:"Reporting & Protection", text:"Anonymous reporting mechanisms are available and functional." },
+  { id:"sp53", page:6, pillar:"Reporting & Protection", text:"Whistleblowers are protected from retaliation by organisational policy." },
+  { id:"sp54", page:6, pillar:"Reporting & Protection", text:"Reported concerns are acknowledged and acted upon in a timely manner." },
+  { id:"sp55", page:6, pillar:"Reporting & Protection", text:"I know whom to contact if I witness unsafe or unethical behaviour." },
+  { id:"sp56", page:6, pillar:"Reporting & Protection", text:"The organisation communicates outcomes of investigations transparently where appropriate." },
+  { id:"sp57", page:6, pillar:"Reporting & Protection", text:"External grievance redressal mechanisms are available if internal channels fail." },
+  { id:"sp58", page:6, pillar:"Reporting & Protection", text:"Employees trust the complaint resolution process to be fair and unbiased." },
+  { id:"sp59", page:6, pillar:"Reporting & Protection", text:"There is no culture of silencing or discouraging complaints." },
+  { id:"sp60", page:6, pillar:"Reporting & Protection", text:"I feel confident that raising a concern will lead to meaningful action." },
+  // PAGE 7 — Leadership Commitment to Safety (61-70)
+  { id:"sp61", page:7, pillar:"Leadership Commitment", text:"Senior leaders visibly champion workplace safety as a core value." },
+  { id:"sp62", page:7, pillar:"Leadership Commitment", text:"Managers lead by example in following safety protocols and policies." },
+  { id:"sp63", page:7, pillar:"Leadership Commitment", text:"Leadership allocates adequate resources for safety improvements." },
+  { id:"sp64", page:7, pillar:"Leadership Commitment", text:"Safety performance is included in leadership KPIs and accountability." },
+  { id:"sp65", page:7, pillar:"Leadership Commitment", text:"Leaders regularly communicate the importance of a safe work environment." },
+  { id:"sp66", page:7, pillar:"Leadership Commitment", text:"Leadership responds swiftly and decisively to safety incidents." },
+  { id:"sp67", page:7, pillar:"Leadership Commitment", text:"Managers actively check on employee well-being, not just productivity." },
+  { id:"sp68", page:7, pillar:"Leadership Commitment", text:"Safety-related suggestions from employees are welcomed and acted upon." },
+  { id:"sp69", page:7, pillar:"Leadership Commitment", text:"Leadership is transparent about safety challenges and improvement plans." },
+  { id:"sp70", page:7, pillar:"Leadership Commitment", text:"I trust that leadership genuinely cares about creating a safe workplace." },
+  // PAGE 8 — Training & Safety Awareness (71-80)
+  { id:"sp71", page:8, pillar:"Training & Awareness", text:"Safety induction training is provided to every new employee." },
+  { id:"sp72", page:8, pillar:"Training & Awareness", text:"Regular refresher training on workplace safety is conducted." },
+  { id:"sp73", page:8, pillar:"Training & Awareness", text:"POSH/anti-harassment training is mandatory for all employees." },
+  { id:"sp74", page:8, pillar:"Training & Awareness", text:"Employees are trained in basic first aid and emergency response." },
+  { id:"sp75", page:8, pillar:"Training & Awareness", text:"Cybersecurity and data safety awareness training is provided." },
+  { id:"sp76", page:8, pillar:"Training & Awareness", text:"Safety training materials are available in languages employees can understand." },
+  { id:"sp77", page:8, pillar:"Training & Awareness", text:"The organisation tracks and ensures completion of mandatory safety training." },
+  { id:"sp78", page:8, pillar:"Training & Awareness", text:"Scenario-based drills are used to make safety training practical and effective." },
+  { id:"sp79", page:8, pillar:"Training & Awareness", text:"Employees are educated about their rights related to workplace safety." },
+  { id:"sp80", page:8, pillar:"Training & Awareness", text:"I feel adequately trained to handle safety-related situations at work." },
+  // PAGE 9 — Work-Life Balance & Well-being (81-90)
+  { id:"sp81", page:9, pillar:"Well-being & Balance", text:"The organisation supports a healthy work-life balance for all employees." },
+  { id:"sp82", page:9, pillar:"Well-being & Balance", text:"Overwork and burnout are recognised and addressed proactively." },
+  { id:"sp83", page:9, pillar:"Well-being & Balance", text:"Mental health resources such as counselling or EAP are available." },
+  { id:"sp84", page:9, pillar:"Well-being & Balance", text:"Flexible working options are available where the role permits." },
+  { id:"sp85", page:9, pillar:"Well-being & Balance", text:"I rarely feel pressured to work beyond my contracted hours." },
+  { id:"sp86", page:9, pillar:"Well-being & Balance", text:"The organisation promotes physical wellness through initiatives or facilities." },
+  { id:"sp87", page:9, pillar:"Well-being & Balance", text:"Maternity, paternity, and caregiving leave policies are supportive and adequate." },
+  { id:"sp88", page:9, pillar:"Well-being & Balance", text:"Employees can take sick leave without stigma or professional repercussions." },
+  { id:"sp89", page:9, pillar:"Well-being & Balance", text:"The organisation monitors and manages employee stress levels." },
+  { id:"sp90", page:9, pillar:"Well-being & Balance", text:"I feel the organisation genuinely invests in my overall well-being." },
+  // PAGE 10 — Compliance, Policy & Governance (91-100)
+  { id:"sp91",  page:10, pillar:"Compliance & Governance", text:"The organisation complies with all national and local workplace safety laws." },
+  { id:"sp92",  page:10, pillar:"Compliance & Governance", text:"Safety policies are documented, accessible, and regularly updated." },
+  { id:"sp93",  page:10, pillar:"Compliance & Governance", text:"A dedicated safety committee or officer oversees workplace safety." },
+  { id:"sp94",  page:10, pillar:"Compliance & Governance", text:"Third-party safety audits are conducted periodically." },
+  { id:"sp95",  page:10, pillar:"Compliance & Governance", text:"Vendor and contractor safety standards are enforced on premises." },
+  { id:"sp96",  page:10, pillar:"Compliance & Governance", text:"Data privacy and information security policies are robust and enforced." },
+  { id:"sp97",  page:10, pillar:"Compliance & Governance", text:"The organisation carries adequate insurance to cover workplace incidents." },
+  { id:"sp98",  page:10, pillar:"Compliance & Governance", text:"Incident reporting and analysis mechanisms drive continuous improvement." },
+  { id:"sp99",  page:10, pillar:"Compliance & Governance", text:"The organisation benchmarks its safety practices against industry standards." },
+  { id:"sp100", page:10, pillar:"Compliance & Governance", text:"Overall, I believe this organisation provides a genuinely safe place to work." },
+];
+
+const SAFE_PLACE_PILLAR_COLORS = {
+  "Physical Safety":"#ef4444", "Psychological Safety":"#a78bfa", "Anti-Harassment":"#f472b6",
+  "Emergency Preparedness":"#f59e0b", "Inclusivity & Respect":"#fb923c", "Reporting & Protection":"#38bdf8",
+  "Leadership Commitment":"#fcd34d", "Training & Awareness":"#4ade80", "Well-being & Balance":"#34d399",
+  "Compliance & Governance":"#818cf8"
+};
 
 // ─────────────────────────────────────────────────────────
 // HRAI FOCUSED SURVEY BANKS — 25 Likert questions each
@@ -1384,6 +1506,208 @@ function CertSurvey({ onBack, survey }) {
   return null;
 }
 
+// ──────────────────────────────────────────────
+// SAFE PLACE TO WORK CERTIFICATION SURVEY
+// ──────────────────────────────────────────────
+function SafePlaceSurvey({ onBack, survey }) {
+  const [phase, setPhase] = useState("intro");
+  const [page, setPage]   = useState(1);
+  const [ans, setAns]     = useState({});
+  const [details, setDetails] = useState({name:"",email:"",designation:"",department:""});
+  const [errs, setErrs]   = useState({});
+
+  const pageQs = SAFE_PLACE_QUESTIONS.filter(q => q.page === page);
+  const totalAnswered = Object.keys(ans).length;
+  const totalQ = SAFE_PLACE_QUESTIONS.length;
+  const progress = Math.round((totalAnswered / totalQ) * 100);
+  const pageComplete = pageQs.every(q => ans[q.id]);
+
+  const validate = () => {
+    const e = {};
+    if (!details.name.trim()) e.name = true;
+    if (!details.email.includes("@")) e.email = true;
+    if (!details.designation.trim()) e.designation = true;
+    if (!details.department.trim()) e.department = true;
+    setErrs(e); return !Object.keys(e).length;
+  };
+
+  const pillarScores = () => {
+    const pillars = {};
+    SAFE_PLACE_QUESTIONS.forEach(q => {
+      if (!pillars[q.pillar]) pillars[q.pillar] = [];
+      if (ans[q.id]) pillars[q.pillar].push(LIKERT_SCORE[ans[q.id]] || 60);
+    });
+    return Object.entries(pillars).map(([k, vs]) => ({
+      pillar: k,
+      score: Math.round(vs.reduce((a,b)=>a+b,0)/Math.max(1,vs.length)),
+      color: SAFE_PLACE_PILLAR_COLORS[k] || "#818cf8"
+    }));
+  };
+
+  const overallScore = () => {
+    const scores = SAFE_PLACE_QUESTIONS.map(q => LIKERT_SCORE[ans[q.id]] || 0).filter(Boolean);
+    return scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  };
+
+  const certLevel = (score) => {
+    if (score >= 85) return { label:"HRAI Platinum — Safe Place", color:"#e5e7eb", badge:"🛡️" };
+    if (score >= 75) return { label:"HRAI Gold — Safe Place",     color:"#fcd34d", badge:"🥇" };
+    if (score >= 65) return { label:"HRAI Silver — Safe Place",   color:"#cbd5e1", badge:"🥈" };
+    if (score >= 55) return { label:"HRAI Bronze — Safe Place",   color:"#d97706", badge:"🥉" };
+    return { label:"HRAI Recognition Eligible",                   color:"#818cf8", badge:"📋" };
+  };
+
+  if (phase === "intro") return (
+    <div className="pub fade"><style>{CSS}</style>
+      <div style={{maxWidth:680,margin:"0 auto",padding:"60px 20px",textAlign:"center"}}>
+        <div style={{marginBottom:32}}>
+          <div style={{fontSize:56,marginBottom:16}}>🛡️</div>
+          <div className="badge" style={{background:"rgba(239,68,68,0.15)",color:"#f87171",border:"1px solid rgba(239,68,68,0.3)",marginBottom:20,fontSize:11}}>Safe Place to Work Certification · 100 Questions · 10 Sections</div>
+          <h1 style={{fontSize:38,fontWeight:800,color:"#f8fafc",letterSpacing:"-0.03em",marginBottom:12}}>HRAI Safe Place to Work</h1>
+          <p style={{fontSize:15,color:"#64748b",lineHeight:1.8,maxWidth:500,margin:"0 auto 40px"}}>A comprehensive 100-question safety audit covering physical safety, psychological safety, anti-harassment, emergency preparedness, and workplace well-being across India.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,maxWidth:540,margin:"0 auto 36px",textAlign:"left"}}>
+          {[["🛡️","Platinum","85+ score — Gold-standard safe workplace"],["🥇","Gold","75–84 — Highly safe & inclusive"],["🥈","Silver","65–74 — Good safety standards"],["🥉","Bronze","55–64 — Developing safety culture"]].map(([e,l,d])=>(
+            <div key={l} style={{padding:"14px 16px",borderRadius:10,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)"}}>
+              <div style={{fontSize:22,marginBottom:6}}>{e}</div>
+              <p style={{fontSize:12,fontWeight:700,color:"#e2e8f0",marginBottom:3}}>{l}</p>
+              <p style={{fontSize:10,color:"#475569"}}>{d}</p>
+            </div>
+          ))}
+        </div>
+        <button className="btn btpl" style={{padding:"14px 40px",fontSize:14}} onClick={()=>setPhase("details")}>Begin Safety Certification →</button>
+        <button className="btn btg" style={{padding:"14px 20px",fontSize:13,marginLeft:10}} onClick={onBack}>← Back</button>
+        <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"center",marginTop:20,padding:"12px 24px",background:"rgba(52,211,153,0.07)",border:"1px solid rgba(52,211,153,0.2)",borderRadius:10,maxWidth:460,margin:"20px auto 0"}}>
+          <span style={{fontSize:20}}>🔒</span>
+          <div style={{textAlign:"left"}}>
+            <p style={{fontSize:12,fontWeight:700,color:"#34d399",marginBottom:2}}>100% Anonymous Survey</p>
+            <p style={{fontSize:11,color:"#475569",lineHeight:1.5}}>Your identity is never revealed. Responses are aggregated and shared only with HR leadership — individual answers remain completely private.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (phase === "details") return (
+    <div className="pub fade"><style>{CSS}</style>
+      <div style={{maxWidth:480,margin:"0 auto",padding:"52px 20px"}}>
+        <button className="btn btg btsm" style={{marginBottom:24}} onClick={()=>setPhase("intro")}>← Back</button>
+        <div className="pub-card">
+          <div style={{padding:"28px 32px 22px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:"linear-gradient(135deg,rgba(239,68,68,0.07),transparent)"}}>
+            <div className="badge" style={{background:"rgba(239,68,68,0.12)",color:"#f87171",border:"1px solid rgba(239,68,68,0.25)",marginBottom:10}}>🛡️ Safe Place to Work Certification</div>
+            <h2 style={{fontSize:22,fontWeight:700,color:"#f1f5f9"}}>Your Details</h2>
+            <p style={{color:"#475569",fontSize:13,marginTop:6,lineHeight:1.6}}>Your responses are <strong style={{color:"#34d399"}}>completely anonymous</strong>. Your name and email are only used to prevent duplicate submissions.</p>
+          </div>
+          <div style={{padding:"28px 32px"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              {[{k:"name",l:"Full Name",p:"Priya Sharma"},{k:"email",l:"Official Email",p:"priya@yourcompany.com"}].map(f=>(
+                <div key={f.k}>
+                  <label style={{color:errs[f.k]?"#fca5a5":undefined}}>{f.l}{errs[f.k]?" — required":""}</label>
+                  <input type={f.k==="email"?"email":"text"} placeholder={f.p} value={details[f.k]} style={{borderColor:errs[f.k]?"#ef4444":undefined}} onChange={e=>setDetails({...details,[f.k]:e.target.value})}/>
+                </div>
+              ))}
+              <div>
+                <label style={{color:errs.designation?"#fca5a5":undefined}}>Designation / Role{errs.designation?" — required":""}</label>
+                <select value={details.designation} style={{background:"rgba(255,255,255,0.05)",border:`1px solid ${errs.designation?"#ef4444":"rgba(255,255,255,0.1)"}`,borderRadius:8,padding:"10px 12px",color:details.designation?"#e2e8f0":"#475569",fontSize:13,width:"100%",fontFamily:"inherit"}} onChange={e=>setDetails({...details,designation:e.target.value})}>
+                  <option value="">Select your designation</option>
+                  {["Intern / Trainee","Executive","Senior Executive","Team Lead","Assistant Manager","Manager","Senior Manager","Deputy General Manager","General Manager","Vice President","Senior Vice President","Director","Senior Director","C-Suite (CXO / President)","Founder / Co-Founder"].map(d=><option key={d} value={d} style={{background:"#0f172a"}}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{color:errs.department?"#fca5a5":undefined}}>Department{errs.department?" — required":""}</label>
+                <select value={details.department} style={{background:"rgba(255,255,255,0.05)",border:`1px solid ${errs.department?"#ef4444":"rgba(255,255,255,0.1)"}`,borderRadius:8,padding:"10px 12px",color:details.department?"#e2e8f0":"#475569",fontSize:13,width:"100%",fontFamily:"inherit"}} onChange={e=>setDetails({...details,department:e.target.value})}>
+                  <option value="">Select your department</option>
+                  {["Human Resources","Finance & Accounts","Sales & Business Development","Marketing & Communications","Operations","Information Technology","Product & Engineering","Customer Success","Legal & Compliance","Procurement & Supply Chain","Research & Development","Learning & Development","Administration","Corporate Strategy","Other"].map(d=><option key={d} value={d} style={{background:"#0f172a"}}>{d}</option>)}
+                </select>
+              </div>
+            </div>
+            <button className="btn btpl" style={{width:"100%",justifyContent:"center",marginTop:24,padding:"13px",fontSize:13}} onClick={()=>{if(validate())setPhase("survey");}}>Start Survey →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (phase === "survey") {
+    const pillar = pageQs[0]?.pillar || "";
+    const pColor = SAFE_PLACE_PILLAR_COLORS[pillar] || "#818cf8";
+    return (
+      <div className="pub fade"><style>{CSS}</style>
+        <div style={{maxWidth:640,margin:"0 auto",padding:"44px 20px"}}>
+          <div style={{marginBottom:20,padding:"14px 20px",background:"rgba(255,255,255,0.02)",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+              <span style={{fontSize:11,fontWeight:700,color:"#f87171"}}>🛡️ Safe Place to Work Certification</span>
+              <span style={{fontSize:11,color:"#64748b"}}>Section {page} of 10 · {progress}% complete</span>
+            </div>
+            <div className="pt" style={{height:5}}><div className="pf" style={{width:`${progress}%`,background:"linear-gradient(90deg,#ef4444,#f87171)"}}/></div>
+          </div>
+          <div className="pub-card">
+            <div style={{padding:"22px 32px 18px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:`linear-gradient(135deg,${pColor}11,transparent)`}}>
+              <span className="badge" style={{fontSize:9,background:`${pColor}18`,color:pColor,border:`1px solid ${pColor}33`,marginBottom:8}}>{pillar}</span>
+              <h3 style={{fontSize:17,fontWeight:700,color:"#f1f5f9"}}>Section {page}: {pillar}</h3>
+              <p style={{fontSize:11,color:"#64748b",marginTop:4}}>Questions {(page-1)*10+1}–{page*10} of 100 · Rate each statement on a 5-point scale</p>
+            </div>
+            <div style={{padding:"28px 32px"}}>
+              <div style={{display:"flex",flexDirection:"column",gap:24}}>
+                {pageQs.map((q,qi)=>{
+                  const cur = ans[q.id];
+                  const colors=["#f87171","#fb923c","#94a3b8","#34d399","#4ade80"];
+                  return (
+                    <div key={q.id}>
+                      <p style={{fontSize:13,fontWeight:600,color:"#e2e8f0",marginBottom:12,lineHeight:1.6}}>
+                        <span style={{color:pColor,fontWeight:700,marginRight:8}}>{(page-1)*10+qi+1}.</span>{q.text}
+                      </p>
+                      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                        {LIKERT_CERT.map((opt,i)=>(
+                          <button key={opt} onClick={()=>setAns({...ans,[q.id]:opt})}
+                            style={{flex:"1 1 0",minWidth:90,padding:"9px 6px",border:`1px solid ${cur===opt?colors[i]:"rgba(255,255,255,0.09)"}`,borderRadius:8,background:cur===opt?`${colors[i]}18`:"rgba(255,255,255,0.02)",cursor:"pointer",color:cur===opt?colors[i]:"#64748b",fontSize:10,fontWeight:cur===opt?700:500,fontFamily:"inherit",transition:"all 0.15s",textAlign:"center"}}>
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:32,paddingTop:20,borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+                <button className="btn btg" onClick={()=>page>1?setPage(page-1):setPhase("details")} style={{visibility:page===1?"hidden":"visible"}}>← Back</button>
+                {page < 10
+                  ? <button className="btn btpl" onClick={()=>{if(pageComplete)setPage(page+1);}} style={{opacity:pageComplete?1:0.4}}>Next Section →</button>
+                  : <button className="btn btpl" onClick={()=>{if(pageComplete)setPhase("result");}} style={{opacity:pageComplete?1:0.4}}>Submit & Get Certification →</button>
+                }
+              </div>
+              {!pageComplete&&<p style={{fontSize:10,color:"#ef4444",textAlign:"center",marginTop:10}}>Please answer all 10 questions to proceed</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "result") {
+    return (
+      <div className="pub fade"><style>{CSS}</style>
+        <div style={{maxWidth:520,margin:"0 auto",padding:"80px 20px",textAlign:"center"}}>
+          <div style={{fontSize:64,marginBottom:24}}>🙏</div>
+          <h1 style={{fontSize:30,fontWeight:800,color:"#f8fafc",letterSpacing:"-0.02em",marginBottom:16}}>Thank You for Your Feedback!</h1>
+          <p style={{fontSize:15,color:"#94a3b8",lineHeight:1.8,maxWidth:420,margin:"0 auto 32px"}}>Your responses have been recorded. Your honest feedback plays a vital role in creating a safer workplace for everyone.</p>
+          <div style={{padding:"20px 28px",background:"rgba(52,211,153,0.07)",border:"1px solid rgba(52,211,153,0.2)",borderRadius:12,marginBottom:32,textAlign:"left"}}>
+            <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+              <span style={{fontSize:22}}>🔒</span>
+              <div>
+                <p style={{fontSize:13,fontWeight:700,color:"#34d399",marginBottom:4}}>Your anonymity is fully protected</p>
+                <p style={{fontSize:12,color:"#475569",lineHeight:1.65}}>Your individual responses are never visible to anyone. Only aggregated, anonymised results are shared with HR leadership as part of the Safe Place to Work Certification report.</p>
+              </div>
+            </div>
+          </div>
+          <p style={{fontSize:12,color:"#334155"}}>You may now close this window.</p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
 
 // ─────────────────────────────────────────────────────────
 // FOCUSED SURVEY COMPONENT
@@ -1818,11 +2142,151 @@ function CampaignSurveyFlow({campaignId,track,org,onBack,onComplete}){
   return null;
 }
 
+// ──────────────────────────────────────────────
+// FOCUSED PUBLIC SURVEY (for login page)
+// ──────────────────────────────────────────────
+function FocusedPublicSurvey({ surveyId, onBack }) {
+  const meta = FOCUSED_SURVEY_LIST.find(s => s.id === surveyId) || FOCUSED_SURVEY_LIST[0];
+  const questions = FOCUSED_SURVEY_QUESTIONS[surveyId] || [];
+  const totalPages = Math.ceil(questions.length / FOCUSED_Q_PER_PAGE);
+
+  const [phase, setPhase] = useState("intro");
+  const [page, setPage]   = useState(1);
+  const [ans, setAns]     = useState({});
+  const [name, setName]   = useState("");
+  const [email, setEmail] = useState("");
+  const [nameErr, setNameErr] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const pageQs = questions.slice((page-1)*FOCUSED_Q_PER_PAGE, page*FOCUSED_Q_PER_PAGE);
+  const progress = Math.round((Object.keys(ans).length / questions.length) * 100);
+  const pageComplete = pageQs.every(q => ans[q.id]);
+
+  const overallScore = () => {
+    const vals = questions.map(q => FOCUSED_LIKERT_SCORE[ans[q.id]] || 0).filter(Boolean);
+    return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  };
+
+  const handleBegin = () => {
+    if(!name.trim()){setNameErr("Please enter your name.");return;}
+    setNameErr("");setPhase("survey");
+  };
+
+  const handleDone = async() => {
+    setSubmitting(true);
+    const score = overallScore();
+    try{
+      await fetch('/api/focused-survey/public-response',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({surveyId,name:name.trim()||"Anonymous",email:email.trim().toLowerCase()||"",answers:ans,score})
+      });
+    }catch(e){}
+    setSubmitting(false);
+    setPhase("done");
+  };
+
+  if (phase === "intro") return (
+    <div className="pub fade"><style>{CSS}</style>
+      <div style={{maxWidth:620,margin:"0 auto",padding:"60px 20px",textAlign:"center"}}>
+        <div style={{fontSize:52,marginBottom:16}}>{meta.icon}</div>
+        <div className="badge" style={{background:`${meta.color}18`,color:meta.color,border:`1px solid ${meta.color}30`,marginBottom:20,fontSize:11}}>
+          Open Survey · 25 Questions · No Login Required
+        </div>
+        <h1 style={{fontSize:32,fontWeight:800,color:"#f8fafc",letterSpacing:"-0.02em",marginBottom:12}}>{meta.label}</h1>
+        <p style={{fontSize:14,color:"#64748b",lineHeight:1.8,maxWidth:460,margin:"0 auto 24px"}}>A targeted 25-question assessment to measure and benchmark {meta.label.toLowerCase()}. Open to all — no account needed.</p>
+        <div style={{background:"rgba(12,19,34,0.8)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"20px 24px",marginBottom:24,textAlign:"left",maxWidth:460,margin:"0 auto 24px"}}>
+          <p style={{fontSize:12,fontWeight:700,color:"#e2e8f0",marginBottom:12}}>Quick details before we begin:</p>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            <div>
+              <label style={{display:"block",fontSize:11,fontWeight:600,color:"#94a3b8",marginBottom:5,textTransform:"uppercase",letterSpacing:"0.06em"}}>Your Name *</label>
+              <input type="text" placeholder="e.g. Shyam Gor" value={name} onChange={e=>setName(e.target.value)} style={{width:"100%",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,padding:"10px 14px",color:"#e2e8f0",fontSize:13,fontFamily:"inherit"}}/>
+            </div>
+            <div>
+              <label style={{display:"block",fontSize:11,fontWeight:600,color:"#94a3b8",marginBottom:5,textTransform:"uppercase",letterSpacing:"0.06em"}}>Work Email (optional)</label>
+              <input type="email" placeholder="you@yourcompany.com" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,padding:"10px 14px",color:"#e2e8f0",fontSize:13,fontFamily:"inherit"}}/>
+            </div>
+          </div>
+          {nameErr&&<p style={{color:"#fca5a5",fontSize:11,marginTop:8}}>{nameErr}</p>}
+        </div>
+        <button className="btn btpl" style={{padding:"14px 36px",fontSize:14}} onClick={handleBegin}>Start Survey →</button>
+        <button className="btn btg" style={{padding:"14px 20px",fontSize:13,marginLeft:10}} onClick={onBack}>← Back</button>
+      </div>
+    </div>
+  );
+
+  if (phase === "survey") {
+    return (
+      <div className="pub fade"><style>{CSS}</style>
+        <div style={{maxWidth:640,margin:"0 auto",padding:"44px 20px"}}>
+          <div style={{marginBottom:20,padding:"14px 20px",background:"rgba(255,255,255,0.02)",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+              <span style={{fontSize:11,fontWeight:700,color:meta.color}}>{meta.icon} {meta.label}</span>
+              <span style={{fontSize:11,color:"#64748b"}}>Page {page}/{totalPages} · {progress}%</span>
+            </div>
+            <div className="pt" style={{height:5}}><div className="pf" style={{width:`${progress}%`,background:`linear-gradient(90deg,${meta.color}cc,${meta.color})`}}/></div>
+          </div>
+          <div className="pub-card">
+            <div style={{padding:"22px 32px 16px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:`linear-gradient(135deg,${meta.color}11,transparent)`}}>
+              <h3 style={{fontSize:17,fontWeight:700,color:"#f1f5f9"}}>{meta.icon} {meta.label}</h3>
+              <p style={{fontSize:11,color:"#64748b",marginTop:4}}>Questions {(page-1)*FOCUSED_Q_PER_PAGE+1}–{Math.min(page*FOCUSED_Q_PER_PAGE,questions.length)} of {questions.length}</p>
+            </div>
+            <div style={{padding:"28px 32px"}}>
+              <div style={{display:"flex",flexDirection:"column",gap:24}}>
+                {pageQs.map((q,qi)=>{
+                  const cur=ans[q.id];
+                  const colors=["#f87171","#fb923c","#94a3b8","#34d399","#4ade80"];
+                  return(
+                    <div key={q.id}>
+                      <p style={{fontSize:13,fontWeight:600,color:"#e2e8f0",marginBottom:12,lineHeight:1.6}}>
+                        <span style={{color:meta.color,fontWeight:700,marginRight:8}}>{(page-1)*FOCUSED_Q_PER_PAGE+qi+1}.</span>{q.text}
+                      </p>
+                      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                        {FOCUSED_LIKERT.map((opt,i)=>(
+                          <button key={opt} onClick={()=>setAns({...ans,[q.id]:opt})}
+                            style={{flex:"1 1 0",minWidth:90,padding:"9px 6px",border:`1px solid ${cur===opt?colors[i]:"rgba(255,255,255,0.09)"}`,borderRadius:8,background:cur===opt?`${colors[i]}18`:"rgba(255,255,255,0.02)",cursor:"pointer",color:cur===opt?colors[i]:"#64748b",fontSize:10,fontWeight:cur===opt?700:500,fontFamily:"inherit",transition:"all 0.15s",textAlign:"center"}}>
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:32,paddingTop:20,borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+                <button className="btn btg" onClick={()=>page>1?setPage(page-1):setPhase("intro")} style={{visibility:page===1?"hidden":"visible"}}>← Back</button>
+                {page<totalPages
+                  ?<button className="btn btpl" onClick={()=>{if(pageComplete)setPage(page+1);}} style={{opacity:pageComplete?1:0.4}}>Next →</button>
+                  :<button className="btn btpl" onClick={()=>{if(pageComplete)handleDone();}} style={{opacity:pageComplete?1:0.4}}>{submitting?"Submitting...":"Submit Survey →"}</button>
+                }
+              </div>
+              {!pageComplete&&<p style={{fontSize:10,color:"#ef4444",textAlign:"center",marginTop:10}}>Please answer all questions on this page</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "done") return (
+    <div className="pub fade"><style>{CSS}</style>
+      <div style={{maxWidth:520,margin:"0 auto",padding:"80px 20px",textAlign:"center"}}>
+        <div style={{fontSize:52,marginBottom:20}}>{meta.icon}</div>
+        <h1 style={{fontSize:28,fontWeight:800,color:"#f8fafc",letterSpacing:"-0.02em",marginBottom:14}}>Thank You!</h1>
+        <p style={{fontSize:14,color:"#94a3b8",lineHeight:1.8,maxWidth:400,margin:"0 auto 28px"}}>Your {meta.label} responses have been recorded. Thank you for contributing to the HRAI ecosystem.</p>
+        <button className="btn btpl" style={{padding:"12px 28px",fontSize:13}} onClick={onBack}>← Back to Home</button>
+      </div>
+    </div>
+  );
+  return null;
+}
+
 // ── Track display helper ───────────────────────────────────────────────────────
 function trackLabel(track){
   if(track===ConversationTrack.CARE)return"C.A.R.E.";
   if(track===ConversationTrack.CLARITY)return"C.L.A.R.I.T.Y.";
   if(track===ConversationTrack.CERT)return"🏆 Certification";
+  if(track===ConversationTrack.SAFE_PLACE)return"🛡️ Safe Place";
   const fs=FOCUSED_SURVEY_LIST.find(s=>s.id===track);
   if(fs)return fs.icon+" "+fs.label;
   return track;
@@ -1831,6 +2295,7 @@ function trackBadgeClass(track){
   if(track===ConversationTrack.CARE)return"tag-care";
   if(track===ConversationTrack.CLARITY)return"tag-clarity";
   if(track===ConversationTrack.CERT)return"badge-super";
+  if(track===ConversationTrack.SAFE_PLACE)return"badge-super";
   return"badge-client";
 }
 
@@ -2105,6 +2570,9 @@ function App() {
   const [registeredUsers,setRegisteredUsers]=useState([]);
   const [showPulse,setShowPulse]=useState(false);
   const [showCert,setShowCert]=useState(false);
+  const [showSafePlaceCert,setShowSafePlaceCert]=useState(false);
+  const [showFocusedPublic,setShowFocusedPublic]=useState(null);
+  const [showOpenSurveys,setShowOpenSurveys]=useState(false);
   const [focusedSurveyId,setFocusedSurveyId]=useState(null);
   const [focusedCampaignId,setFocusedCampaignId]=useState(null);
   const [pulseResponses,setPulseResponses]=useState([]);
@@ -2184,10 +2652,13 @@ function App() {
     const surveyType=params.get("survey");
     if(surveyType==="esi"||campId===null&&window.location.search.includes("esi")){
       setShowPulse(true);
+    } else if(surveyType&&FOCUSED_SURVEY_LIST.find(s=>s.id===surveyType)){
+      setShowFocusedPublic(surveyType);
     } else if(campId){
       const fsId=FOCUSED_SURVEY_LIST.find(s=>s.id===campId||s.id===track);
       if(fsId){setFocusedSurveyId(fsId.id);setFocusedCampaignId(campId);}
       else if(track===ConversationTrack.CERT){setShowCert(true);}
+      else if(track===ConversationTrack.SAFE_PLACE){setShowSafePlaceCert(true);}
       else if(track===ConversationTrack.CARE||track===ConversationTrack.CLARITY){
         setActiveCampaignSurvey({id:campId,track,org:params.get("org")||""});
       }
@@ -2588,11 +3059,14 @@ function App() {
   if(activeCampaignSurvey) return <CampaignSurveyFlow campaignId={activeCampaignSurvey.id} track={activeCampaignSurvey.track} org={activeCampaignSurvey.org} onBack={()=>setActiveCampaignSurvey(null)} onComplete={()=>{setActiveCampaignSurvey(null);refreshCampaignData();}}/>;
   if(focusedSurveyId) return <FocusedSurvey surveyId={focusedSurveyId} campaignId={focusedCampaignId} onBack={()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);}} onComplete={focusedCampaignId?()=>{setFocusedSurveyId(null);setFocusedCampaignId(null);refreshCampaignData();}:null}/>;
   if(showCert) return <CertSurvey onBack={()=>setShowCert(false)}/>;
+  if(showSafePlaceCert) return <SafePlaceSurvey onBack={()=>setShowSafePlaceCert(false)}/>;
+  if(showFocusedPublic) return <FocusedPublicSurvey surveyId={showFocusedPublic} onBack={()=>{window.history.pushState({},'',window.location.pathname);setShowFocusedPublic(null);}}/>;
   if(showPulse) return <PulseSurvey pulseResponses={pulseResponses} setPulseResponses={setPulseResponses} onBack={()=>{window.history.pushState({},'',window.location.pathname);setShowPulse(false);}}/>;
   if(currentUser?.role==="client") return <ClientPortal user={currentUser} surveys={surveys} refreshSurveys={refreshCampaignData} onLogout={()=>{window.HRAI_API.setToken(null);setCurrentUser(null);}} onTakeSurvey={(sv)=>{
     const fsMatch=FOCUSED_SURVEY_LIST.find(s=>s.id===sv.track||s.label===sv.title);
     if(fsMatch){setFocusedSurveyId(fsMatch.id);setFocusedCampaignId(sv.id);}
     else if(sv.track===ConversationTrack.CERT){setShowCert(true);}
+    else if(sv.track===ConversationTrack.SAFE_PLACE){setShowSafePlaceCert(true);}
     else if(sv.track===ConversationTrack.CARE||sv.track===ConversationTrack.CLARITY){
       const comp=MOCK_COMPANIES.find(c=>c.id===sv.companyId);
       setActiveCampaignSurvey({id:sv.id,track:sv.track,org:comp?.name||sv.companyName||sv.title});
@@ -2755,6 +3229,30 @@ function App() {
               Take Survey — No Login Required →
             </button>
           </div>
+          {/* Open Skill Surveys — collapsible */}
+          <div style={{marginBottom:20}}>
+            <button onClick={()=>setShowOpenSurveys(!showOpenSurveys)} style={{width:"100%",padding:"10px 16px",background:"rgba(124,58,237,0.06)",border:"1px solid rgba(124,58,237,0.18)",borderRadius:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",fontFamily:"inherit"}}>
+              <span style={{fontSize:11,fontWeight:700,color:"#a78bfa"}}>📊 Open Skill Surveys (10)</span>
+              <span style={{fontSize:10,color:"#64748b",transform:showOpenSurveys?"rotate(180deg)":"rotate(0)",transition:"transform 0.2s"}}>▼</span>
+            </button>
+            {showOpenSurveys&&(
+              <div style={{marginTop:8,display:"flex",flexWrap:"wrap",gap:6,padding:"10px 12px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:10}}>
+                {FOCUSED_SURVEY_LIST.map(s=>(
+                  <div key={s.id} style={{display:"flex",alignItems:"center",gap:4}}>
+                    <button onClick={()=>{window.history.pushState({},'',`?survey=${s.id}`);setShowFocusedPublic(s.id);}}
+                      style={{padding:"5px 10px",borderRadius:100,border:`1px solid ${s.color}35`,background:`${s.color}12`,color:s.color,fontSize:10,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                      {s.icon} {s.label}
+                    </button>
+                    <button onClick={()=>{const url=`${window.location.href.split("?")[0]}?survey=${s.id}`;navigator.clipboard.writeText(url);}} title="Copy link"
+                      style={{padding:"3px 6px",borderRadius:6,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(255,255,255,0.03)",color:"#64748b",fontSize:9,cursor:"pointer",fontFamily:"inherit"}}>
+                      🔗
+                    </button>
+                  </div>
+                ))}
+                <p style={{width:"100%",fontSize:9,color:"#475569",marginTop:4}}>No login required — click to take, 🔗 to copy shareable link</p>
+              </div>
+            )}
+          </div>
           <div style={{marginBottom:14}}>
             <label>Email Address</label>
             <input type="email" placeholder="team@hrassociationofindia.com" value={loginForm.email} onChange={e=>setLoginForm({...loginForm,email:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()}/>
@@ -2861,6 +3359,7 @@ function App() {
                       <option value={ConversationTrack.CARE}>🔵 C.A.R.E. — Culture & Engagement (50 Qs)</option>
                       <option value={ConversationTrack.CLARITY}>🟣 C.L.A.R.I.T.Y. — Leadership Alignment (50 Qs)</option>
                       <option value={ConversationTrack.CERT}>🏆 People Workplace Certification — Full Audit (100 Qs)</option>
+                      <option value={ConversationTrack.SAFE_PLACE}>🛡️ Safe Place to Work — Safety Certification (100 Qs)</option>
                     </optgroup>
                     <optgroup label="── Focused Skill Surveys (25 Qs each)">
                       {FOCUSED_SURVEY_LIST.map(s=><option key={s.id} value={s.id} style={{background:"#0f172a"}}>{s.icon} {s.label}</option>)}
@@ -3665,6 +4164,7 @@ HR Team`);
                           <option value={ConversationTrack.CARE}>C.A.R.E. (Open)</option>
                           <option value={ConversationTrack.CLARITY}>C.L.A.R.I.T.Y. (Align)</option>
                           <option value={ConversationTrack.CERT}>🏆 People Workplace Certification</option>
+                          <option value={ConversationTrack.SAFE_PLACE}>🛡️ Safe Place to Work</option>
                         </select>
                       </div>
                     </div>
@@ -3740,7 +4240,7 @@ HR Team`);
                       const health=overall>=80?"Excellent":overall>=70?"Good":overall>=55?"Moderate":"Needs Attention";
                       const hColor=overall>=80?"#34d399":overall>=70?"#4ade80":overall>=55?"#fbbf24":"#f87171";
                       const hBg=overall>=80?"rgba(52,211,153,0.08)":overall>=70?"rgba(74,222,128,0.07)":overall>=55?"rgba(251,191,36,0.08)":"rgba(248,113,113,0.08)";
-                      const trackLabel=effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E. Framework":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y. Framework":"People Workplace Certification";
+                      const trackLabel=effectiveSelSurvey.track===ConversationTrack.CARE?"C.A.R.E. Framework":effectiveSelSurvey.track===ConversationTrack.CLARITY?"C.L.A.R.I.T.Y. Framework":effectiveSelSurvey.track===ConversationTrack.SAFE_PLACE?"Safe Place to Work":"People Workplace Certification";
                       const pillars=Object.entries(effectiveSelSurvey.aggregatedMetrics||{});
                       return(
                         <div style={{background:`linear-gradient(135deg,${hBg},rgba(15,24,41,0.6))`,border:`1px solid ${hColor}30`,borderRadius:14,padding:"28px 32px",marginBottom:16,position:"relative",overflow:"hidden"}}>
@@ -4109,6 +4609,35 @@ HR Team`);
                   🏆 Preview Certification Survey
                 </button>
                 <p style={{fontSize:11,color:"#334155",marginTop:12}}>To run a full certification for a company, create a new campaign and select "People Workplace Certification" as the framework.</p>
+              </div>
+
+              {/* Safe Place to Work Section */}
+              <div style={{marginTop:28}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:20,flexWrap:"wrap",gap:12}}>
+                  <div>
+                    <h3 style={{fontSize:20,fontWeight:800,color:"#f8fafc",marginBottom:3,letterSpacing:"-0.02em"}}>🛡️ Safe Place to Work Certification</h3>
+                    <p style={{color:"#64748b",fontSize:12}}>Certify your organisation as a safe place to work</p>
+                  </div>
+                </div>
+                <div className="card" style={{marginBottom:20}}>
+                  <p style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#64748b",marginBottom:16}}>10 Safety Dimensions · 10 Questions Each</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
+                    {Object.entries(SAFE_PLACE_PILLAR_COLORS).map(([pillar,color])=>(
+                      <div key={pillar} style={{padding:"12px",background:`${color}0d`,border:`1px solid ${color}22`,borderRadius:8,textAlign:"center"}}>
+                        <p style={{fontSize:11,fontWeight:700,color,lineHeight:1.4}}>{pillar}</p>
+                        <p style={{fontSize:9,color:"#475569",marginTop:4}}>10 Qs</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="card" style={{textAlign:"center",padding:"32px"}}>
+                  <p style={{fontSize:15,fontWeight:700,color:"#e2e8f0",marginBottom:8}}>Launch Safe Place Certification</p>
+                  <p style={{fontSize:13,color:"#475569",marginBottom:24,lineHeight:1.7}}>Run the Safe Place to Work Certification survey across your organisation. Covers physical safety, psychological safety, anti-harassment, emergency preparedness, and more.</p>
+                  <button className="btn btpl" style={{padding:"13px 32px",fontSize:13}} onClick={()=>setShowSafePlaceCert(true)}>
+                    🛡️ Preview Safety Certification
+                  </button>
+                  <p style={{fontSize:11,color:"#334155",marginTop:12}}>To run a full certification, create a new campaign and select "Safe Place to Work" as the framework.</p>
+                </div>
               </div>
             </div>
           )}

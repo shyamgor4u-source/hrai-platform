@@ -104,3 +104,17 @@ model PulseResponse {
 
   @@map("pulse_responses")
 }
+
+// ── Focused Public Survey Responses ──────────────────────────────────────────
+
+model FocusedPublicResponse {
+  id          String   @id @default(cuid())
+  surveyId    String
+  name        String?
+  email       String?
+  answers     Json
+  score       Int?
+  submittedAt DateTime @default(now())
+
+  @@map("focused_public_responses")
+}
