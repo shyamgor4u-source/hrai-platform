@@ -13,7 +13,10 @@ router.get('/', authenticate, async (req, res) => {
     const campaigns = await prisma.campaign.findMany({
       include: {
         reportAccess: { select: { email: true } },
-        _count: { select: { responses: true } },
+        responses: {
+          select: { id: true, name: true, email: true, answers: true, metrics: true, submittedAt: true },
+          orderBy: { submittedAt: 'desc' },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -32,7 +35,8 @@ router.get('/', authenticate, async (req, res) => {
       aiInsight: c.aiInsight,
       pdfInsight: c.pdfInsight,
       reportAccessEmails: c.reportAccess.map(r => r.email),
-      responses: c._count.responses,
+      responses: c.responses.length,
+      responsesData: c.responses,
       createdAt: c.createdAt,
       ownerId: c.ownerId,
     }));
