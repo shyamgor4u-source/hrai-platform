@@ -2599,6 +2599,8 @@ function App() {
   const [esiReportLoading,setEsiReportLoading]=useState(false);
   const [adminRightsForm,setAdminRightsForm]=useState({name:"",email:"",password:""});
   const [adminRightsPerms,setAdminRightsPerms]=useState({dashboard:true,campaigns:true,insights:true,certification:false});
+  const [adminRightsMsg,setAdminRightsMsg]=useState(null);
+  const [adminRightsSaving,setAdminRightsSaving]=useState(false);
   const [editingAdmin,setEditingAdmin]=useState(null);
 
   // Auto-login check on page load
@@ -3837,13 +3839,21 @@ HR Team`);
                     ))}
                   </div>
                 </div>
-                <button className="btn btp" style={{alignSelf:"flex-start"}} onClick={async()=>{
-                  if(!adminRightsForm.name||!adminRightsForm.email.includes("@")||!adminRightsForm.password)return;
+                {adminRightsMsg&&<p style={{fontSize:11,fontWeight:600,color:adminRightsMsg.type==="ok"?"#34d399":"#fca5a5",padding:"6px 10px",background:adminRightsMsg.type==="ok"?"rgba(52,211,153,0.08)":"rgba(252,165,165,0.08)",borderRadius:6,border:`1px solid ${adminRightsMsg.type==="ok"?"rgba(52,211,153,0.2)":"rgba(252,165,165,0.2)"}`}}>{adminRightsMsg.text}</p>}
+                <button className="btn btp" style={{alignSelf:"flex-start",opacity:adminRightsSaving?0.6:1,pointerEvents:adminRightsSaving?"none":undefined}} onClick={async()=>{
+                  setAdminRightsMsg(null);
+                  if(!adminRightsForm.name.trim()){setAdminRightsMsg({type:"err",text:"Please enter the admin's full name."});return;}
+                  if(!adminRightsForm.email.includes("@")){setAdminRightsMsg({type:"err",text:"Please enter a valid email address."});return;}
+                  if(!adminRightsForm.password){setAdminRightsMsg({type:"err",text:"Please set a temporary password."});return;}
+                  setAdminRightsSaving(true);
                   try{
-                    const res=await window.HRAI_API.api('/api/users/admins',{method:'POST',body:JSON.stringify({name:adminRightsForm.name,email:adminRightsForm.email,password:adminRightsForm.password,permissions:adminRightsPerms})});
-                    if(res.ok){const data=await res.json();setAdminList([...adminList,data.admin||data]);setAdminRightsForm({name:"",email:"",password:""});setAdminRightsPerms({dashboard:true,campaigns:true,insights:true,certification:false});}
-                  }catch(e){}
-                }}><Ic.Plus/> Add Admin with Permissions</button>
+                    const res=await window.HRAI_API.api('/api/users/admins',{method:'POST',body:JSON.stringify({name:adminRightsForm.name.trim(),email:adminRightsForm.email.trim(),password:adminRightsForm.password,permissions:adminRightsPerms})});
+                    const data=await res.json();
+                    if(res.ok){setAdminList([...adminList,data.admin||data]);setAdminRightsForm({name:"",email:"",password:""});setAdminRightsPerms({dashboard:true,campaigns:true,insights:true,certification:false});setAdminRightsMsg({type:"ok",text:"Admin added successfully!"});}
+                    else{setAdminRightsMsg({type:"err",text:data.error||"Failed to create admin."});}
+                  }catch(e){setAdminRightsMsg({type:"err",text:"Network error — please try again."});}
+                  finally{setAdminRightsSaving(false);}
+                }}>{adminRightsSaving?"Adding...":<><Ic.Plus/> Add Admin with Permissions</>}</button>
               </div>
             </div>
           </div>
@@ -3896,7 +3906,7 @@ HR Team`);
                 <button className="ni" style={{fontSize:11}} onClick={()=>{setView("survey-preview");setShowOptionsMenu(false);}}>
                   <Ic.Eye/> Tools — Preview Survey
                 </button>
-                {isSuperAdmin&&<button className="ni" style={{fontSize:11,color:"#a78bfa"}} onClick={()=>{setShowAdminRights(true);setShowOptionsMenu(false);}}>
+                {isSuperAdmin&&<button className="ni" style={{fontSize:11,color:"#a78bfa"}} onClick={()=>{setShowAdminRights(true);setShowOptionsMenu(false);setAdminRightsMsg(null);setAdminRightsSaving(false);}}>
                   <Ic.Shield/> Admin Rights
                 </button>}
                 
