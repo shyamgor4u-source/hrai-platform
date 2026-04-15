@@ -2804,13 +2804,15 @@ function App() {
   };
 
   const genInsight=async(survey)=>{
+    if(!survey){setAiInsight({summary:"No survey selected.",themes:[],recommendations:[]});return;}
     setGenerating(true);setAiInsight(null);
     try{
       const res=await window.HRAI_API.api('/api/ai/campaign-insights',{method:'POST',body:JSON.stringify({campaignTitle:survey.title,responses:survey.responses,aggregatedMetrics:survey.aggregatedMetrics})});
+      if(!res.ok){const errData=await res.json().catch(()=>({}));console.error('[AI Insight] API error',res.status,errData);setAiInsight({summary:errData.error||("AI service returned an error ("+res.status+"). Please try again."),themes:[],recommendations:[]});return;}
       const data=await res.json();
       const raw=data.insight||data;
       setAiInsight({summary:raw.executiveSummary||raw.summary||"",themes:[...(raw.strengths||[]),...(raw.concerns||[]),...(raw.themes||[])],recommendations:raw.recommendations||[],overallScore:raw.overallScore,sentiment:raw.sentiment});
-    }catch(e){setAiInsight({summary:"Analysis unavailable. Check connection.",themes:[],recommendations:[]});}
+    }catch(e){console.error('[AI Insight] Error',e);setAiInsight({summary:"Analysis unavailable. Check connection and try again.",themes:[],recommendations:[]});}
     finally{setGenerating(false);}
   };
 
@@ -2822,8 +2824,16 @@ function App() {
     }
     const sv=surveys.find(s=>s.id===selId);
     const campR=campaignResponsesMap[selId]||[];
-    const qs=SURVEY_QUESTIONS[sv?.track]||[];
-    return {headers:["Name","Email","Submitted At",...qs.map(q=>`${q.id.toUpperCase()}: ${q.text.replace(/,/g,";")}`), "Overall Score"],rows:campR.map(r=>[r.name||"",r.email||"",r.submittedAt?new Date(r.submittedAt).toLocaleString("en-IN"):"", ...qs.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):(a||"")}),r.score||""])};
+    const track=sv?.track;
+    let qs=SURVEY_QUESTIONS[track]||[];
+    if(!qs.length&&track===ConversationTrack.CERT)qs=CERT_QUESTIONS;
+    if(!qs.length&&track===ConversationTrack.SAFE_PLACE)qs=SAFE_PLACE_QUESTIONS;
+    if(!qs.length&&FOCUSED_SURVEY_QUESTIONS[track])qs=FOCUSED_SURVEY_QUESTIONS[track];
+    if(!qs.length&&campR.length>0){
+      const allKeys=new Set();campR.forEach(r=>{if(r.answers&&typeof r.answers==="object")Object.keys(r.answers).forEach(k=>allKeys.add(k));});
+      qs=[...allKeys].map(k=>({id:k,text:k}));
+    }
+    return {headers:["Name","Email","Submitted At",...qs.map(q=>`${q.id.toUpperCase()}: ${(q.text||q.id).replace(/,/g,";")}`), "Overall Score"],rows:campR.map(r=>[r.name||"",r.email||"",r.submittedAt?new Date(r.submittedAt).toLocaleString("en-IN"):"", ...qs.map(q=>{const a=r.answers?.[q.id];return typeof a==="object"?JSON.stringify(a):((a!=null?String(a):""))}),r.score||""])};
   };
 
   const exportDataCSV=()=>{
